@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRIS | LASIMRA Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>LASIMRA</h2>
+                <p>IRIS Analytics Platform</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="admin@lasimra.gov.ng">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <div id="loginError" class="error-msg"></div>
+                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application Wrapper -->
+    <div id="appWrapper" class="app-wrapper hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>IRIS</span>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</li>
+                <li data-view="map"><i class="fa-solid fa-map-location-dot"></i> Geospatial View</li>
+                <li data-view="dataGrid"><i class="fa-solid fa-table-list"></i> Permit Data</li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span id="userNameDisplay">Admin User</span>
+                    <small id="userRoleDisplay">ADMIN</small>
+                </div>
+                <button id="logoutBtn" class="btn btn-icon" title="Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="viewTitle">Dashboard Overview</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="status-indicator" id="socketStatus" title="Disconnected">
+                        <span class="dot red"></span> Live Feed
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view-section active">
+                
+                <!-- KPI Cards -->
+                <div class="grid kpi-grid">
+                    <div class="card kpi-card">
+                        <div class="kpi-icon blue"><i class="fa-solid fa-file-signature"></i></div>
+                        <div class="kpi-data">
+                            <h3>Total Permits</h3>
+                            <h2 id="kpiTotal">...</h2>
+                        </div>
+                    </div>
+                    <div class="card kpi-card">
+                        <div class="kpi-icon orange"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div class="kpi-data">
+                            <h3>Pending</h3>
+                            <h2 id="kpiPending">...</h2>
+                        </div>
+                    </div>
+                    <div class="card kpi-card">
+                        <div class="kpi-icon green"><i class="fa-solid fa-check-circle"></i></div>
+                        <div class="kpi-data">
+                            <h3>Approved</h3>
+                            <h2 id="kpiApproved">...</h2>
+                        </div>
+                    </div>
+                    <div class="card kpi-card">
+                        <div class="kpi-icon purple"><i class="fa-solid fa-hard-hat"></i></div>
+                        <div class="kpi-data">
+                            <h3>Active Inspections</h3>
+                            <h2 id="kpiInspections">...</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Area -->
+                <div class="grid chart-grid">
+                    <!-- Column 1: Trend Line -->
+                    <div class="card chart-card large-chart">
+                        <div class="card-header">
+                            <h3>Application Trends (12 Months)</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Column 2: Status Breakdown -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3>Permit Status</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Type Distribution -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3>Infrastructure Types</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Ticker -->
+                <div class="card ticker-card mt-20">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-bolt text-yellow"></i> Live Activity Push</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul id="liveTickerList" class="ticker-list">
+                            <li class="ticker-empty">Waiting for events...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map View -->
+            <div id="mapView" class="view-section hidden">
+                <div class="card map-container">
+                    <div id="map" style="height: 100%; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- Data Grid View -->
+            <div id="dataGridView" class="view-section hidden">
+                <div class="card grid-container">
+                    <div class="card-header flex-between">
+                        <h3>Permit Registry</h3>
+                        <div class="grid-actions">
+                            <input type="text" id="gridSearch" placeholder="Search Permits..." class="input-light">
+                            <button id="exportCsvBtn" class="btn btn-outline"><i class="fa-solid fa-download"></i> Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                         <div id="agGrid" class="ag-theme-alpine" style="height: 600px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <!-- External Libs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- AG Grid Community via CDN (To avoid large local bundle issues in this demo mode) -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Application Logic Compiled from TS -->
+    <script type="module" src="/js/main.js"></script>
+</body>
+</html>
