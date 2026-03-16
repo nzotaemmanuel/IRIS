@@ -46,6 +46,12 @@ export const customFetch = async (url: string, options: RequestInit = {}): Promi
     return response;
 };
 
+export const fetchKPI = async (domain: string, period: string = 'all') => {
+    const response = await customFetch(`/api/kpi/${domain}?period=${period}`);
+    if (!response.ok) throw new Error(`Failed to fetch ${domain} KPI`);
+    return response.json();
+};
+
 const logout = () => {
     localStorage.removeItem('iris_access_token');
     localStorage.removeItem('iris_refresh_token');

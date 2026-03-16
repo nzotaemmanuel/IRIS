@@ -6,3 +6,10 @@ public/js/
 *.log
 npm-debug.log*
 package-lock.json
+schema_discovery.json
+data_samples.txt
+discover-schema.ts
+verify-data.ts
+verify-kpis.ts
+verify-auth.ts
+seed-admin.ts

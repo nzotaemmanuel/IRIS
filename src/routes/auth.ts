@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { executeQuery } from '../config/db';
 
 const router = express.Router();
@@ -17,36 +18,30 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    // 1. Check if user exists in StaffDetails table (Mock logic for password checking)
-    // In production, you would fetch the user's hashed password and compare it with bcrypt
+    // 1. Fetch user and their hashed password from the database
     const query = `
-      SELECT Name, EmailAddress, Designation, Role 
+      SELECT Name, EmailAddress, Designation, Role, PasswordHash
       FROM [SmartBoxData].[LASIMRA_StaffDetails_SMO] 
       WHERE EmailAddress = @email
     `;
     
-    // Attempting query. For now, we will handle mock fallback since the DB might not be connected locally yet.
-    let user;
-    try {
-        const users = await executeQuery(query, { email });
-        user = users.length > 0 ? users[0] : null;
-    } catch(err) {
-        console.warn("Database connection issue. Using mock user for development.");
-        // Mock user fallback for testing UI without real DB connection
-        if (email === 'admin@lasimra.gov.ng' && password === 'admin') {
-            user = { Name: 'Admin User', EmailAddress: email, Role: 'ADMIN' };
-        } else if (email === 'analyst@lasimra.gov.ng' && password === 'analyst') {
-            user = { Name: 'Analyst User', EmailAddress: email, Role: 'ANALYST' };
-        }
-    }
+    const users = await executeQuery(query, { email });
+    const user = users.length > 0 ? users[0] : null;
 
     if (!user) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
 
-    // 2. Mock password check. If it were real, you'd do: 
-    // const isMatch = await bcrypt.compare(password, user.passwordHash)
-    // if (!isMatch) return res.status(400).json({ msg: 'Invalid Credentials' })
+    // 2. Compare the provided password with the hashed password in the DB
+    if (!user.PasswordHash) {
+       console.warn(`User ${email} found but has no PasswordHash.`);
+       return res.status(400).json({ msg: 'Invalid Credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.PasswordHash);
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Invalid Credentials' });
+    }
 
     // 3. Create payload
     const userPayload = {
@@ -78,7 +73,7 @@ router.post('/login', async (req, res) => {
     });
     
   } catch (err: any) {
-    console.error(err.message);
+    console.error("Login Error:", err.message);
     res.status(500).send('Server Error');
   }
 });

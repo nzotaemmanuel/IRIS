@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRIS | LASIMRA Dashboard</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>IRIS | LASIMRA Command Center</title>
+    <!-- Google Fonts: Outfit for headers, Inter for body -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet CSS -->
@@ -17,20 +17,21 @@
     <!-- Login Overlay -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-card">
+            <img src="/assets/logo.png" alt="LASIMRA Logo" class="login-logo">
             <div class="login-header">
-                <h2>LASIMRA</h2>
-                <p>IRIS Analytics Platform</p>
+                <h2>Welcome Back</h2>
+                <p>Sign in to the IRIS Command Center</p>
             </div>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required placeholder="admin@lasimra.gov.ng">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="name@lasimra.gov.ng">
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" required placeholder="••••••••">
                 </div>
-                <div id="loginError" class="error-msg"></div>
+                <div id="loginError" class="error-msg hidden"></div>
                 <button type="submit" class="btn btn-primary btn-block">Sign In</button>
             </form>
         </div>
@@ -41,20 +42,42 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <i class="fa-solid fa-satellite-dish"></i>
-                <span>IRIS</span>
+                <img src="/assets/logo.png" alt="Logo" class="brand-logo">
+                <span class="brand-text">IRIS</span>
             </div>
             <ul class="nav-links">
-                <li class="active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</li>
-                <li data-view="map"><i class="fa-solid fa-map-location-dot"></i> Geospatial View</li>
-                <li data-view="dataGrid"><i class="fa-solid fa-table-list"></i> Permit Data</li>
+                <li class="nav-item active" data-view="dashboard">
+                    <i class="fa-solid fa-shapes"></i>
+                    <span>Executive Overview</span>
+                </li>
+                <li class="nav-item" data-view="revenue">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Revenue Analytics</span>
+                </li>
+                <li class="nav-item" data-view="map">
+                    <i class="fa-solid fa-earth-africa"></i>
+                    <span>Operations Map</span>
+                </li>
+                <li class="nav-item" data-view="dataGrid">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Regulatory Records</span>
+                </li>
+                <li class="nav-item" data-view="reports">
+                    <i class="fa-solid fa-file-contract"></i>
+                    <span>Reports</span>
+                </li>
+                <li class="nav-item" data-view="settings">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </li>
             </ul>
             <div class="sidebar-footer">
-                <div class="user-info">
-                    <span id="userNameDisplay">Admin User</span>
-                    <small id="userRoleDisplay">ADMIN</small>
+                <div class="user-avatar" id="avatarInitials">EN</div>
+                <div class="user-meta">
+                    <p id="userNameDisplay">Emmanuel Nzota</p>
+                    <span id="userRoleDisplay">System Administrator</span>
                 </div>
-                <button id="logoutBtn" class="btn btn-icon" title="Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                <button id="logoutBtn" class="btn-icon" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
         </aside>
 
@@ -62,92 +85,147 @@
         <main class="main-content">
             <!-- Header -->
             <header class="top-header">
-                <div class="header-title">
-                    <h1 id="viewTitle">Dashboard Overview</h1>
+                <div class="view-title">
+                    <h1 id="viewTitle">Executive Overview</h1>
                 </div>
                 <div class="header-actions">
-                    <div class="status-indicator" id="socketStatus" title="Disconnected">
-                        <span class="dot red"></span> Live Feed
+                    <div class="status-badge" id="socketStatus">
+                        <span class="dot red"></span>
+                        <span>Live Feed</span>
                     </div>
                 </div>
             </header>
 
             <!-- Dashboard View -->
             <div id="dashboardView" class="view-section active">
-                
-                <!-- KPI Cards -->
-                <div class="grid kpi-grid">
-                    <div class="card kpi-card">
-                        <div class="kpi-icon blue"><i class="fa-solid fa-file-signature"></i></div>
-                        <div class="kpi-data">
-                            <h3>Total Permits</h3>
-                            <h2 id="kpiTotal">...</h2>
+                <!-- KPI Grid (8 Domains) -->
+                <div class="kpi-grid">
+                    <!-- Domain 1: Structures -->
+                    <div class="kpi-card" data-domain="structures">
+                        <div class="kpi-info">
+                            <h3>STRUCTURES</h3>
+                            <h2 id="kpi-structures-total">0</h2>
+                        </div>
+                        <div class="kpi-icon-box blue">
+                            <i class="fa-solid fa-tower-broadcast"></i>
                         </div>
                     </div>
-                    <div class="card kpi-card">
-                        <div class="kpi-icon orange"><i class="fa-solid fa-hourglass-half"></i></div>
-                        <div class="kpi-data">
-                            <h3>Pending</h3>
-                            <h2 id="kpiPending">...</h2>
+                    <!-- Domain 2: Customers -->
+                    <div class="kpi-card" data-domain="customers">
+                        <div class="kpi-info">
+                            <h3>CUSTOMERS</h3>
+                            <h2 id="kpi-customers-total">0</h2>
+                        </div>
+                        <div class="kpi-icon-box emerald">
+                            <i class="fa-solid fa-users-viewfinder"></i>
                         </div>
                     </div>
-                    <div class="card kpi-card">
-                        <div class="kpi-icon green"><i class="fa-solid fa-check-circle"></i></div>
-                        <div class="kpi-data">
-                            <h3>Approved</h3>
-                            <h2 id="kpiApproved">...</h2>
+                    <!-- Domain 3: Arrears -->
+                    <div class="kpi-card" data-domain="arrears">
+                        <div class="kpi-info">
+                            <h3>GROSS ARREARS</h3>
+                            <h2 id="kpi-arrears-total">₦0.00</h2>
+                        </div>
+                        <div class="kpi-icon-box red">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
                         </div>
                     </div>
-                    <div class="card kpi-card">
-                        <div class="kpi-icon purple"><i class="fa-solid fa-hard-hat"></i></div>
-                        <div class="kpi-data">
-                            <h3>Active Inspections</h3>
-                            <h2 id="kpiInspections">...</h2>
+                    <!-- Domain 4: Payments -->
+                    <div class="kpi-card" data-domain="payments">
+                        <div class="kpi-info">
+                            <h3>TOTAL REVENUE</h3>
+                            <h2 id="kpi-payments-total">₦0.00</h2>
+                        </div>
+                        <div class="kpi-icon-box blue">
+                            <i class="fa-solid fa-naira-sign"></i>
+                        </div>
+                    </div>
+                    <!-- Domain 5: Requests -->
+                    <div class="kpi-card" data-domain="requests">
+                        <div class="kpi-info">
+                            <h3>TOTAL REQUESTS</h3>
+                            <h2 id="kpi-requests-total">0</h2>
+                        </div>
+                        <div class="kpi-icon-box amber">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                    </div>
+                    <!-- Domain 6: Permits -->
+                    <div class="kpi-card" data-domain="permits">
+                        <div class="kpi-info">
+                            <h3>ISSUED PERMITS</h3>
+                            <h2 id="kpi-permits-total">0</h2>
+                        </div>
+                        <div class="kpi-icon-box indigo">
+                            <i class="fa-solid fa-memo-circle-check"></i>
+                        </div>
+                    </div>
+                    <!-- Domain 7: Surveillance -->
+                    <div class="kpi-card" data-domain="surveillance">
+                        <div class="kpi-info">
+                            <h3>FIELD INSPECTIONS</h3>
+                            <h2 id="kpi-surveillance-total">0</h2>
+                        </div>
+                        <div class="kpi-icon-box orange">
+                            <i class="fa-solid fa-helmet-safety"></i>
+                        </div>
+                    </div>
+                    <!-- Domain 8: Violations -->
+                    <div class="kpi-card" data-domain="violations">
+                        <div class="kpi-info">
+                            <h3>TOTAL VIOLATIONS</h3>
+                            <h2 id="kpi-violations-total">0</h2>
+                        </div>
+                        <div class="kpi-icon-box red">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts Area -->
-                <div class="grid chart-grid">
-                    <!-- Column 1: Trend Line -->
-                    <div class="card chart-card large-chart">
-                        <div class="card-header">
-                            <h3>Application Trends (12 Months)</h3>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="trendChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Column 2: Status Breakdown -->
+                <!-- Charts Area (Expandable) -->
+                <div class="chart-grid">
                     <div class="card chart-card">
                         <div class="card-header">
-                            <h3>Permit Status</h3>
+                            <h3>Infrastructure Distribution</h3>
                         </div>
                         <div class="card-body">
-                            <canvas id="statusChart"></canvas>
+                            <canvas id="chart-structures"></canvas>
                         </div>
                     </div>
-
-                    <!-- Column 3: Type Distribution -->
                     <div class="card chart-card">
                         <div class="card-header">
-                            <h3>Infrastructure Types</h3>
+                            <h3>Revenue by Channel</h3>
                         </div>
                         <div class="card-body">
-                            <canvas id="typeChart"></canvas>
+                            <canvas id="chart-payments"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3>Application Status Pipeline</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-requests"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3>Violation Distribution</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-violations"></canvas>
                         </div>
                     </div>
                 </div>
 
                 <!-- Live Ticker -->
-                <div class="card ticker-card mt-20">
+                <div class="card mt-20">
                     <div class="card-header">
-                        <h3><i class="fa-solid fa-bolt text-yellow"></i> Live Activity Push</h3>
+                        <h3><i class="fa-solid fa-bolt-lightning text-primary"></i> Real-time Activity Logs</h3>
                     </div>
                     <div class="card-body">
                         <ul id="liveTickerList" class="ticker-list">
-                            <li class="ticker-empty">Waiting for events...</li>
+                            <li class="ticker-item"><span class="ticker-content">Initializing feed...</span></li>
                         </ul>
                     </div>
                 </div>
@@ -164,10 +242,10 @@
             <div id="dataGridView" class="view-section hidden">
                 <div class="card grid-container">
                     <div class="card-header flex-between">
-                        <h3>Permit Registry</h3>
-                        <div class="grid-actions">
-                            <input type="text" id="gridSearch" placeholder="Search Permits..." class="input-light">
-                            <button id="exportCsvBtn" class="btn btn-outline"><i class="fa-solid fa-download"></i> Export CSV</button>
+                        <h3>Regulatory Registry</h3>
+                        <div class="grid-actions flex-between" style="gap: 15px;">
+                            <input type="text" id="gridSearch" placeholder="Filter records..." style="width: 300px;">
+                            <button id="exportCsvBtn" class="btn btn-outline"><i class="fa-solid fa-file-arrow-down"></i> Export Registry</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -176,13 +254,23 @@
                 </div>
             </div>
             
+            <!-- Generic Views (Mocked) -->
+            <div id="revenueView" class="view-section hidden">
+                <h2>Revenue Analytics coming soon...</h2>
+            </div>
+            <div id="reportsView" class="view-section hidden">
+                <h2>Reports Generation coming soon...</h2>
+            </div>
+            <div id="settingsView" class="view-section hidden">
+                <h2>Settings Panel coming soon...</h2>
+            </div>
+            
         </main>
     </div>
 
     <!-- External Libs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- AG Grid Community via CDN (To avoid large local bundle issues in this demo mode) -->
     <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">

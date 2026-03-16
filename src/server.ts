@@ -25,15 +25,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, '../public')));
+const publicPath = path.resolve(__dirname, '..', 'public');
+app.use(express.static(publicPath));
 
 // Define port (iisnode uses process.env.PORT)
 const PORT = process.env.PORT || 3000;
 
+// Import routes
 import authRoutes from './routes/auth';
 import statsRoutes from './routes/stats';
 import permitsRoutes from './routes/permits';
 import geoRoutes from './routes/geo';
+import kpiRoutes from './routes/kpi';
 import { initializeSocketEvents } from './sockets/permitEvents';
 
 // Route mount points
@@ -41,6 +44,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/permits', permitsRoutes);
 app.use('/api/geo', geoRoutes);
+app.use('/api/kpi', kpiRoutes);
 
 // Socket.io integration
 initializeSocketEvents(io);
@@ -50,14 +54,15 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Fallback to index.html for SPA-like behavior (if needed)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+// Fallback to index.html for SPA-like behavior
+// Using app.use as a catch-all instead of app.get('*') to avoid Express 5 wildcard conflicts
+app.use((req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // Start the server
 server.listen(PORT, () => {
-  console.log(`IRIS Server is running on port ${PORT}`);
+    console.log(`IRIS Server is running on port ${PORT}`);
 });
 
 export { app, server, io };

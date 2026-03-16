@@ -3,6 +3,7 @@ import { renderCharts } from './charts.js';
 import { initializeMap } from './maps.js';
 import { initializeGrid } from './grid.js';
 import { initializeSocket } from './realtime.js';
+import { initializeKPIDashboard } from './kpi-loader.js';
 import { customFetch } from './api.js';
 
 // App State
@@ -17,8 +18,9 @@ const elements = {
     loginError: document.getElementById('loginError') as HTMLDivElement,
     userNameDisplay: document.getElementById('userNameDisplay') as HTMLSpanElement,
     userRoleDisplay: document.getElementById('userRoleDisplay') as HTMLElement,
+    avatarInitials: document.getElementById('avatarInitials') as HTMLDivElement,
     logoutBtn: document.getElementById('logoutBtn') as HTMLButtonElement,
-    navLinks: document.querySelectorAll('.nav-links li') as NodeListOf<HTMLLIElement>,
+    navLinks: document.querySelectorAll('.nav-item') as NodeListOf<HTMLLIElement>,
     viewSections: document.querySelectorAll('.view-section') as NodeListOf<HTMLDivElement>,
     viewTitle: document.getElementById('viewTitle') as HTMLHeadingElement,
     socketStatus: document.getElementById('socketStatus') as HTMLDivElement
@@ -32,7 +34,12 @@ const checkAuth = () => {
         elements.appWrapper.classList.remove('hidden');
         
         elements.userNameDisplay.textContent = currentUser.name;
-        elements.userRoleDisplay.textContent = currentUser.role;
+        elements.userRoleDisplay.textContent = currentUser.role === 'ADMIN' ? 'System Administrator' : currentUser.role;
+        
+        // Set avatar initials
+        const names = currentUser.name.split(' ');
+        const initials = names.map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+        elements.avatarInitials.textContent = initials;
 
         // Initialize application modules
         initializeDashboard();
@@ -137,6 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const initializeDashboard = () => {
-   fetchDashboardKPIs();
-   renderCharts();
+   initializeKPIDashboard();
+   // Legacy charts and dashboard calls removed or replaced by KPI loader
 };

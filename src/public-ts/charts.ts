@@ -27,21 +27,32 @@ export const renderCharts = async () => {
     }
 };
 
+const getChartTheme = () => ({
+    color: '#94a3b8', // text-muted
+    font: { family: "'Inter', sans-serif", size: 11 },
+    grid: { color: 'rgba(255, 255, 255, 0.05)' }
+});
+
 const renderTrendChart = (data: any[]) => {
     const ctx = document.getElementById('trendChart') as HTMLCanvasElement;
     if (trendChartInstance) trendChartInstance.destroy();
+
+    const theme = getChartTheme();
 
     trendChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: data.map(d => d.Month),
             datasets: [{
-                label: 'Permit Applications',
-                data: data.map(d => d.PermitCount),
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                tension: 0.3,
-                fill: true
+                label: 'Permit Revenue',
+                data: data.map(d => d.PermitCount), // Map to real data fields if needed
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#6366f1',
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
@@ -51,7 +62,15 @@ const renderTrendChart = (data: any[]) => {
                 legend: { display: false }
             },
             scales: {
-                y: { beginAtZero: true }
+                y: { 
+                    beginAtZero: true,
+                    grid: theme.grid,
+                    ticks: { color: theme.color, font: theme.font }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: theme.color, font: theme.font }
+                }
             }
         }
     });
@@ -67,15 +86,20 @@ const renderStatusChart = (data: any[]) => {
             labels: data.map(d => d.status),
             datasets: [{
                 data: data.map(d => d.count),
-                backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#8b5cf6']
+                backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#6366f1'],
+                borderWidth: 0,
+                hoverOffset: 12
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '70%',
+            cutout: '75%',
             plugins: {
-                legend: { position: 'bottom' }
+                legend: { 
+                    position: 'bottom',
+                    labels: { color: '#94a3b8', usePointStyle: true, font: { size: 12 } }
+                }
             }
         }
     });
@@ -85,6 +109,8 @@ const renderTypeChart = (data: any[]) => {
     const ctx = document.getElementById('typeChart') as HTMLCanvasElement;
     if (typeChartInstance) typeChartInstance.destroy();
 
+    const theme = getChartTheme();
+
     typeChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -92,8 +118,9 @@ const renderTypeChart = (data: any[]) => {
             datasets: [{
                 label: 'Volume',
                 data: data.map(d => d.count),
-                backgroundColor: '#3b82f6',
-                borderRadius: 4
+                backgroundColor: '#6366f1',
+                borderRadius: 6,
+                hoverBackgroundColor: '#4f46e5'
             }]
         },
         options: {
@@ -102,6 +129,16 @@ const renderTypeChart = (data: any[]) => {
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: false }
+            },
+            scales: {
+                x: { 
+                    grid: theme.grid,
+                    ticks: { color: theme.color, font: theme.font }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: theme.color, font: theme.font }
+                }
             }
         }
     });

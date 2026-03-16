@@ -1,11 +1,11 @@
+import { handleRealtimeKPIUpdate, initializeKPIDashboard } from './kpi-loader.js';
 declare const io: any;
-import { fetchDashboardKPIs } from './dashboard';
 
 let socket: any = null;
 
 export const initializeSocket = () => {
     // Only init if we have a token (user logged in)
-    const token = localStorage.getItem('iris_token');
+    const token = localStorage.getItem('iris_access_token');
     if (!token) return;
 
     // Disconnect existing if any before reconnecting
@@ -45,6 +45,10 @@ export const initializeSocket = () => {
         updateTicker(data);
     });
 
+    socket.on('kpi_update', (data: any) => {
+        handleRealtimeKPIUpdate(data);
+    });
+
     // Handle global KPI refresh triggers
     socket.on('refresh_kpi', () => {
         // Flash the KPI container slightly to show an update happened
@@ -54,7 +58,7 @@ export const initializeSocket = () => {
             setTimeout(() => kpiGrid.classList.remove('pulse-update'), 500);
         }
         
-        fetchDashboardKPIs();
+        initializeKPIDashboard();
     });
 
     // Expose socket globally so main.js can disconnect it on logout
@@ -72,25 +76,33 @@ const updateTicker = (event: any) => {
     }
 
     const li = document.createElement('li');
+    li.className = 'ticker-item';
     
     // Add icon based on status
-    let icon = '<i class="fa-solid fa-bell text-blue"></i>';
-    if (event.type === 'permit:new') icon = '<i class="fa-solid fa-plus-circle text-green" style="color:#10b981;"></i>';
-    if (event.type === 'permit:statusChanged') icon = '<i class="fa-solid fa-arrows-rotate text-orange" style="color:#f59e0b;"></i>';
+    let iconColor = '#6366f1'; // Default indigo
+    let iconClass = 'fa-bell';
+    
+    if (event.type === 'permit:new') {
+        iconColor = '#10b981';
+        iconClass = 'fa-circle-plus';
+    } else if (event.type === 'permit:statusChanged') {
+        iconColor = '#f59e0b';
+        iconClass = 'fa-arrows-rotate';
+    }
 
-    const timeString = new Date(event.timestamp).toLocaleTimeString();
+    const timeString = new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     li.innerHTML = `
-        <div style="display: flex; gap: 10px; align-items: center;">
-            ${icon}
+        <div class="ticker-content" style="display: flex; gap: 12px; align-items: center;">
+            <i class="fa-solid ${iconClass}" style="color: ${iconColor}; font-size: 1rem;"></i>
             <span>${event.message}</span>
         </div>
         <span class="ticker-time">${timeString}</span>
     `;
 
-    // Add to top and remove oldest if > 15
+    // Add to top and remove oldest if > 10
     list.prepend(li);
-    if (list.children.length > 15) {
+    if (list.children.length > 10) {
         list.removeChild(list.lastChild as Node);
     }
 };

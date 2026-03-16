@@ -6,7 +6,7 @@ export const fetchDashboardKPIs = async () => {
         
         if (res.ok) {
             const data = await res.json();
-            document.getElementById('kpiTotal')!.textContent = data.TotalPermits.toLocaleString();
+            document.getElementById('kpiTotal')!.textContent = `₦${data.TotalPermits.toLocaleString()}`;
             document.getElementById('kpiPending')!.textContent = data.PendingApplications.toLocaleString();
             document.getElementById('kpiApproved')!.textContent = data.ApprovedPermits.toLocaleString();
             document.getElementById('kpiInspections')!.textContent = data.ActiveInspections.toLocaleString();

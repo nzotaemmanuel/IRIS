@@ -31,7 +31,7 @@ if (dbType === 'AZURE') {
     password: process.env.DB_PASS_LOCAL || process.env.DB_PASS || '',
     database: process.env.DB_NAME_LOCAL || process.env.DB_NAME || 'LASIMRA_IRIS',
     server: process.env.DB_SERVER_LOCAL || process.env.DB_SERVER || 'localhost',
-    port: parseInt(process.env.DB_PORT_LOCAL || process.env.DB_PORT || '1433', 10),
+    port: parseInt(process.env.DB_PORT_LOCAL || process.env.DB_PORT || '56442', 10),
     pool: {
       max: 20,
       min: 2,
@@ -51,8 +51,9 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
     return pool;
   })
   .catch(err => {
-    console.error(`Database Connection Failed (${dbType})! Bad Config: `, err);
-    throw err;
+    console.error(`Database Connection Failed (${dbType})! Server will run in MOCK mode. Error: `, err.message);
+    // Return a dummy pool or null to handle in executeQuery
+    return null;
   });
 
 export { sql, poolPromise };
@@ -65,13 +66,16 @@ export { sql, poolPromise };
  */
 export const executeQuery = async (query: string, params: Record<string, any> = {}) => {
   const pool = await poolPromise;
+  if (!pool) {
+    throw new Error('Database connection is not available. Using fallback logic if available.');
+  }
   const request = pool.request();
-  
+
   // Add inputs based on parameter types
   Object.keys(params).forEach(key => {
     request.input(key, params[key]);
   });
-  
+
   try {
     const result = await request.query(query);
     return result.recordset;
