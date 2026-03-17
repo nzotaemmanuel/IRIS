@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon --watch src -e ts,js,json src/server.ts",
     "build:backend": "tsc -p tsconfig.json",
     "build:frontend": "tsc -p tsconfig.frontend.json",
     "build": "npm run clean && npm run build:backend && npm run build:frontend",

@@ -30,7 +30,8 @@ router.get('/structures', async (req: any, res: any) => {
   const cacheKey = `kpi_structures_${period}`;
 
   const cachedData = cache.get(cacheKey);
-  if (cachedData) return res.json(cachedData);
+  // Temporarily bypass cache to ensure user sees live DB data after mapping changes
+  // if (cachedData) return res.json(cachedData);
 
   try {
     const total = await executeQuery(`
@@ -73,8 +74,9 @@ router.get('/structures', async (req: any, res: any) => {
     io.emit('kpi_update', { domain: 'structures', metric: 'S1', value: result.total });
 
     res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch structures KPI' });
+  } catch (err: any) {
+    console.error('KPI ERROR [structures]:', err);
+    res.status(500).json({ error: 'Failed to fetch structures KPI', details: err.message, stack: err.stack });
   }
 });
 
