@@ -121,6 +121,14 @@ const switchView = (viewId: string) => {
 elements.loginForm.addEventListener('submit', handleLogin);
 elements.logoutBtn.addEventListener('click', handleLogout);
 
+// --- Sidebar Toggle ---
+const sidebarToggle = document.getElementById('sidebarToggle') as HTMLButtonElement;
+const sidebar = document.querySelector('.sidebar') as HTMLElement;
+
+sidebarToggle?.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+});
+
 elements.navLinks.forEach(link => {
     link.addEventListener('click', () => {
         const targetView = link.dataset.view;
