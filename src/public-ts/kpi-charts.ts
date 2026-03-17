@@ -51,7 +51,11 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
             scales: type === 'doughnut' ? {} : {
                 y: { 
                     grid: type === 'horizontalBar' ? { display: false } : theme.grid,
-                    ticks: { color: theme.color, font: theme.font }
+                    ticks: { 
+                        color: theme.color, 
+                        font: theme.font,
+                        autoSkip: false // Ensure all status labels are shown
+                    }
                 },
                 x: {
                     grid: type === 'horizontalBar' ? theme.grid : { display: false },

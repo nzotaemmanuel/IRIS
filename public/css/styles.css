@@ -405,7 +405,8 @@ input:focus {
 
 .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
 .card-header h3 { font-size: 1rem; color: var(--text-main); }
-.card-body { padding: 1.5rem; position: relative; }
+.card-body { padding: 1.5rem; position: relative; min-height: 400px; }
+#card-requests .card-body { min-height: 550px; }
 
 /* --- Tables (AG Grid) --- */
 .grid-container { height: 100%; display: flex; flex-direction: column; }
