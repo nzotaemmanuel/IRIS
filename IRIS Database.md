@@ -177,6 +177,21 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/****** Object:  Table [SmartBoxData].[LASIMRA_ProcessDefinition_SMO]    Script Date: 3/11/2026 8:02:46 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [SmartBoxData].[LASIMRA_ProcessDefinition_SMO](
+	[ID] [bigint] NOT NULL,
+	[ProcessType] [nvarchar](100) NULL,
+	[ApprovalURL] [nvarchar](max) NULL,
+	[ViewURL] [nvarchar](max) NULL,
+	[InstallationURL] [nvarchar](max) NULL,
+	[RenewalURL] [nvarchar](max) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
 CREATE TABLE [SmartBoxData].[LASIMRA_Request_SMO](
 	[RequestID] [bigint] NOT NULL,
 	[CustomerID] [bigint] NULL,

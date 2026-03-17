@@ -28,36 +28,34 @@ const getPeriodFilter = (period: string, dateColumn: string) => {
 router.get('/structures', async (req: any, res: any) => {
   const period = (req.query.period as string) || 'all';
   const cacheKey = `kpi_structures_${period}`;
-  
+
   const cachedData = cache.get(cacheKey);
   if (cachedData) return res.json(cachedData);
 
   try {
     const total = await executeQuery(`
-      SELECT COUNT(t.ID) as value 
-      FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
-      JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
-      WHERE (r.ProcessType = 1 AND r.StatusID = 13) 
-         OR (r.ProcessType = 2 AND r.StatusID = 28)
+      SELECT COUNT(*) as value 
+      FROM [SmartBoxData].[LASIMRA_Request_SMO] r
+      WHERE (r.ProcessType = 1 AND r.StatusID = 28) 
+         OR (r.ProcessType = 2 AND r.StatusID = 13)
     `);
-    
+
     const distribution = await executeQuery(`
       SELECT 
-        CASE WHEN r.ProcessType = 1 THEN 'RoW'
-             WHEN r.ProcessType = 2 THEN 'MAST'
+        CASE WHEN r.ProcessType = 1 THEN 'MAST'
+             WHEN r.ProcessType = 2 THEN 'RoW'
              ELSE 'Other' END as label,
-        COUNT(t.ID) as value
-      FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
-      JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
-      WHERE (r.ProcessType = 1 AND r.StatusID = 13) 
-         OR (r.ProcessType = 2 AND r.StatusID = 28)
+        COUNT(*) as value
+      FROM [SmartBoxData].[LASIMRA_Request_SMO] r
+      WHERE (r.ProcessType = 1 AND r.StatusID = 28) 
+         OR (r.ProcessType = 2 AND r.StatusID = 13)
       GROUP BY r.ProcessType
     `);
 
     const trend = await executeQuery(`
       SELECT FORMAT(r.ApplicationDate, 'yyyy-MM') as month, COUNT(*) as value
       FROM [SmartBoxData].[LASIMRA_Request_SMO] r
-      WHERE (r.RequestTitle LIKE '%MAST%' OR r.RequestTitle LIKE '%ROW%')
+      WHERE r.ProcessType IN (1, 2)
       ${getPeriodFilter(period, 'r.ApplicationDate')}
       GROUP BY FORMAT(r.ApplicationDate, 'yyyy-MM')
       ORDER BY month ASC
@@ -70,7 +68,7 @@ router.get('/structures', async (req: any, res: any) => {
     };
 
     cache.set(cacheKey, result);
-    
+
     // Real-time emit for S1
     io.emit('kpi_update', { domain: 'structures', metric: 'S1', value: result.total });
 
@@ -90,7 +88,7 @@ router.get('/customers', async (req: any, res: any) => {
 
   try {
     const total = await executeQuery('SELECT COUNT(*) as value FROM [SmartBoxData].[LASIMRA_CustomerDetails_SMO] WHERE StatusId = 2');
-    
+
     const sector = await executeQuery(`
       SELECT CASE WHEN IsALTON = 1 THEN 'ALTON' ELSE 'OTHERS' END as label, COUNT(*) as value
       FROM [SmartBoxData].[LASIMRA_CustomerDetails_SMO]
@@ -119,7 +117,7 @@ router.get('/arrears', async (req: any, res: any) => {
 
   try {
     const total = await executeQuery('SELECT SUM(Arrears) as value FROM [SmartBoxData].[LASIMRA_CustomerDetails_SMO]');
-    
+
     const ageing = await executeQuery(`
       SELECT TOP 10 CustomerName as label, Arrears as value
       FROM [SmartBoxData].[LASIMRA_CustomerDetails_SMO]
@@ -133,7 +131,7 @@ router.get('/arrears', async (req: any, res: any) => {
     };
 
     cache.set(cacheKey, result);
-    
+
     // Real-time emit for A1
     io.emit('kpi_update', { domain: 'arrears', metric: 'A1', value: result.total });
 
@@ -154,7 +152,7 @@ router.get('/payments', async (req: any, res: any) => {
 
   try {
     const total = await executeQuery(`SELECT SUM(AmountPaid) as value FROM [SmartBoxData].[LASIMRA_Payment_SMO] WHERE 1=1 ${getPeriodFilter(period, 'TimeStamp')}`);
-    
+
     const byChannel = await executeQuery(`
       SELECT PaymentMode as label, SUM(AmountPaid) as value
       FROM [SmartBoxData].[LASIMRA_Payment_SMO]
@@ -169,7 +167,7 @@ router.get('/payments', async (req: any, res: any) => {
     };
 
     cache.set(cacheKey, result);
-    
+
     // Real-time emit for PM1
     io.emit('kpi_update', { domain: 'payments', metric: 'PM1', value: result.total });
 
@@ -190,7 +188,7 @@ router.get('/requests', async (req: any, res: any) => {
 
   try {
     const total = await executeQuery(`SELECT COUNT(*) as value FROM [SmartBoxData].[LASIMRA_Request_SMO] WHERE 1=1 ${getPeriodFilter(period, 'ApplicationDate')}`);
-    
+
     const pipeline = await executeQuery(`
       SELECT sl.Status as label, COUNT(r.RequestID) as value
       FROM [SmartBoxData].[LASIMRA_Request_SMO] r
@@ -222,7 +220,7 @@ router.get('/permits', async (req: any, res: any) => {
 
   try {
     const total = await executeQuery(`SELECT COUNT(*) as value FROM [SmartBoxData].[LASIMRA_Permits_SMO] WHERE 1=1 ${getPeriodFilter(period, 'UploadDate')}`);
-    
+
     const recent = await executeQuery(`
       SELECT TOP 5 r.RequestTitle as label, p.UploadDate as date, p.CreatedBy
       FROM [SmartBoxData].[LASIMRA_Permits_SMO] p
@@ -252,7 +250,7 @@ router.get('/surveillance', async (req: any, res: any) => {
 
   try {
     const total = await executeQuery('SELECT COUNT(*) as value FROM [SmartBoxData].[LASIMRA_SiteInspection_SMO_1]');
-    
+
     // Outcome from associated request status
     const outcomes = await executeQuery(`
       SELECT 
@@ -285,7 +283,7 @@ router.get('/violations', async (req: any, res: any) => {
 
   try {
     const total = await executeQuery('SELECT COUNT(*) as value FROM [SmartBoxData].[LASIMRA_SurvillanceRequest_SMO]');
-    
+
     const byType = await executeQuery(`
       SELECT vt.ViolationName as label, COUNT(sr.ID) as value
       FROM [SmartBoxData].[LASIMRA_SurvillanceRequest_SMO] sr
@@ -299,7 +297,7 @@ router.get('/violations', async (req: any, res: any) => {
     };
 
     cache.set(cacheKey, result);
-    
+
     // Real-time emit for V1
     io.emit('kpi_update', { domain: 'violations', metric: 'V1', value: result.total });
 

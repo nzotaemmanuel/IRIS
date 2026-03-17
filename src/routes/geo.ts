@@ -19,20 +19,20 @@ router.get('/permits', async (req, res) => {
                 r.RequestID, 
                 t.Longitude, 
                 t.Latitude, 
-                CASE WHEN r.ProcessType = 1 THEN 'RoW'
-                     WHEN r.ProcessType = 2 THEN 'Tower & Mast'
+                CASE WHEN r.ProcessType = 1 THEN 'Tower & Mast'
+                     WHEN r.ProcessType = 2 THEN 'RoW'
                      ELSE 'Other' END as category,
                 t.Type_of_Structure
             FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
             JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
             WHERE t.Longitude IS NOT NULL AND t.Latitude IS NOT NULL
-              AND ((r.ProcessType = 1 AND r.StatusID = 13) OR (r.ProcessType = 2 AND r.StatusID = 28))
+              AND ((r.ProcessType = 1 AND r.StatusID = 28) OR (r.ProcessType = 2 AND r.StatusID = 13))
         `;
 
         let points = [];
         try {
             points = await executeQuery(query);
-            
+
             // Map SQL rows to standard GeoJSON format
             const featureCollection = {
                 type: 'FeatureCollection',
@@ -51,9 +51,9 @@ router.get('/permits', async (req, res) => {
             };
             return res.json(featureCollection);
 
-        } catch(err) {
+        } catch (err) {
             // Provide large mock GeoJSON dataset for Lagos
-            const mockFeatures = Array.from({length: 200}).map((_, i) => ({
+            const mockFeatures = Array.from({ length: 200 }).map((_, i) => ({
                 type: 'Feature',
                 geometry: {
                     type: 'Point',
@@ -69,13 +69,13 @@ router.get('/permits', async (req, res) => {
                     status: ['Pending', 'Approved'][Math.floor(Math.random() * 2)]
                 }
             }));
-            
+
             return res.json({
                 type: 'FeatureCollection',
                 features: mockFeatures
             });
         }
-    } catch(err: any) {
+    } catch (err: any) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
@@ -95,11 +95,11 @@ router.get('/lga-density', async (req, res) => {
             JOIN [SmartBoxData].[LASIMRA_LocalGovernment_SMO] l ON sur.LGAID = l.LGACode
             GROUP BY l.LGAName
         `;
-        
+
         let density;
         try {
             density = await executeQuery(query);
-        } catch(err) {
+        } catch (err) {
             // Mock density data for standard Lagos LGAs
             density = [
                 { LGAName: 'Ikeja', PermitCount: 1250 },

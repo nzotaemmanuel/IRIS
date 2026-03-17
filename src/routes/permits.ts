@@ -16,9 +16,9 @@ router.get('/', async (req, res) => {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 50;
         const offset = (page - 1) * limit;
-        
+
         const search = req.query.search ? `%${req.query.search}%` : '%%';
-        
+
         // Using raw pagination syntax depending on SQL server version.
         // Assuming SQL Server 2012+ (OFFSET/FETCH)
         const query = `
@@ -26,8 +26,8 @@ router.get('/', async (req, res) => {
                 r.RequestID, 
                 r.RefNo as PermitID, 
                 c.CustomerName as Applicant, 
-                CASE WHEN r.ProcessType = 1 THEN 'RoW'
-                     WHEN r.ProcessType = 2 THEN 'Tower & Mast'
+                CASE WHEN r.ProcessType = 1 THEN 'Tower & Mast'
+                     WHEN r.ProcessType = 2 THEN 'RoW'
                      ELSE 'Other' END as Category, 
                 r.ApplicationDate, 
                 s.Status, 
@@ -56,9 +56,9 @@ router.get('/', async (req, res) => {
             records = await executeQuery(query, { search, offset, limit });
             const countResult = await executeQuery(countQuery, { search });
             total = countResult[0].total;
-        } catch(err) {
+        } catch (err) {
             // Mock Fallback
-            records = Array.from({length: limit}).map((_, i) => ({
+            records = Array.from({ length: limit }).map((_, i) => ({
                 RequestID: i + offset + 1,
                 PermitID: `P-${20260000 + i + offset}`,
                 Applicant: `Mock Applicant Corp ${Math.floor(Math.random() * 100)}`,
@@ -80,8 +80,8 @@ router.get('/', async (req, res) => {
                 totalPages: Math.ceil(total / limit)
             }
         });
-        
-    } catch(err: any) {
+
+    } catch (err: any) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
@@ -96,7 +96,7 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         // In reality, this would JOIN across almost all tables listed in the schema based on RequestID
-        
+
         let record;
         try {
             const query = `
@@ -107,19 +107,19 @@ router.get('/:id', async (req, res) => {
         } catch (err) {
             // Mock detail view
             record = {
-               RequestID: id,
-               PermitID: `P-${id}`,
-               CustomerName: 'Mock Applicant Corp 42',
-               ContactPerson: 'John Doe',
-               OfficePhone: '08012345678',
-               Category: 'Fiber-ROW',
-               Status: 'Approved',
-               ApplicationDate: '2026-01-15T10:30:00Z',
-               ApprovalDate: '2026-02-01T14:20:00Z',
-               AssignedOfficer: 'Engr. Sarah Smith',
-               LocationRoutes: 'Opebi Road to Allen Avenue',
-               AmountPaid: '1500000',
-               PaymentStatus: 'Successful'
+                RequestID: id,
+                PermitID: `P-${id}`,
+                CustomerName: 'Mock Applicant Corp 42',
+                ContactPerson: 'John Doe',
+                OfficePhone: '08012345678',
+                Category: 'Fiber-ROW',
+                Status: 'Approved',
+                ApplicationDate: '2026-01-15T10:30:00Z',
+                ApprovalDate: '2026-02-01T14:20:00Z',
+                AssignedOfficer: 'Engr. Sarah Smith',
+                LocationRoutes: 'Opebi Road to Allen Avenue',
+                AmountPaid: '1500000',
+                PaymentStatus: 'Successful'
             };
         }
 
@@ -128,7 +128,7 @@ router.get('/:id', async (req, res) => {
         }
 
         res.json(record);
-    } catch(err: any) {
+    } catch (err: any) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }

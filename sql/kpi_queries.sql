@@ -12,15 +12,14 @@ Source of Truth: LASIMRA_IRIS Schema Discovery 2026-03-16
 SELECT COUNT(*) as TotalStructures 
 FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO];
 
--- S2: Structures by Category (Distribution) - ProcessType Defined
+-- S2: Structures by Category (Distribution)
 SELECT 
-    CASE WHEN r.ProcessType = 1 THEN 'RoW'
-         WHEN r.ProcessType = 2 THEN 'MAST'
+    CASE WHEN r.ProcessType = 1 THEN 'MAST'
+         WHEN r.ProcessType = 2 THEN 'RoW'
          ELSE 'OTHER' END as Category, 
-    COUNT(t.ID) as Count
-FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
-JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
-WHERE (r.ProcessType = 1 AND r.StatusID = 13) OR (r.ProcessType = 2 AND r.StatusID = 28)
+    COUNT(*) as Count
+FROM [SmartBoxData].[LASIMRA_Request_SMO] r
+WHERE (r.ProcessType = 1 AND r.StatusID = 28) OR (r.ProcessType = 2 AND r.StatusID = 13)
 GROUP BY r.ProcessType;
 
 -- S3: Asset Registration Rate (MTD/QTD/YTD proxy via Requests)
@@ -29,19 +28,18 @@ SELECT
     FORMAT(r.ApplicationDate, 'yyyy-MM') as Month,
     COUNT(*) as Registrations
 FROM [SmartBoxData].[LASIMRA_Request_SMO] r
-WHERE r.ProcessType = 1 OR r.ProcessType = 2
+WHERE r.ProcessType IN (1, 2)
 GROUP BY FORMAT(r.ApplicationDate, 'yyyy-MM')
 ORDER BY Month DESC;
 
--- S4: Structural Compliance Status (Filtered by Approved Status IDs)
+-- S4: Structural Compliance Status
 SELECT 
-    CASE WHEN r.ProcessType = 1 THEN 'RoW' ELSE 'MAST' END as Type,
     sl.Status,
     COUNT(r.RequestID) as Count
 FROM [SmartBoxData].[LASIMRA_Request_SMO] r
 INNER JOIN [SmartBoxData].[LASIMRA_StatusList_SMO] sl ON r.StatusID = sl.ID
-WHERE r.StatusID IN (13, 28)
-GROUP BY r.ProcessType, sl.Status;
+WHERE sl.Category = 'RoW'
+GROUP BY sl.Status;
 
 -- S5: Asset Age Profile (Grouping by registration year)
 SELECT 
