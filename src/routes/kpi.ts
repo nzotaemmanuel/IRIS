@@ -37,16 +37,21 @@ router.get('/structures', async (req: any, res: any) => {
       SELECT COUNT(t.ID) as value 
       FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
       JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
-      WHERE r.StatusID IN (13, 28)
+      WHERE (r.ProcessType = 1 AND r.StatusID = 13) 
+         OR (r.ProcessType = 2 AND r.StatusID = 28)
     `);
     
     const distribution = await executeQuery(`
-      SELECT sc.Name as label, COUNT(t.ID) as value
+      SELECT 
+        CASE WHEN r.ProcessType = 1 THEN 'RoW'
+             WHEN r.ProcessType = 2 THEN 'MAST'
+             ELSE 'Other' END as label,
+        COUNT(t.ID) as value
       FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
-      LEFT JOIN [SmartBoxData].[LASIMRA_SiteCategory_SMO] sc ON t.Site_Category = sc.ID
       JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
-      WHERE r.StatusID IN (13, 28)
-      GROUP BY sc.Name
+      WHERE (r.ProcessType = 1 AND r.StatusID = 13) 
+         OR (r.ProcessType = 2 AND r.StatusID = 28)
+      GROUP BY r.ProcessType
     `);
 
     const trend = await executeQuery(`
