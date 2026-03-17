@@ -15,9 +15,18 @@ router.get('/permits', async (req, res) => {
     try {
         // Query relies on joining Tower/Mast coordinates or SiteInspection location routes
         const query = `
-            SELECT RequestID, Longitude, Latitude, Site_Category, Type_of_Structure
-            FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO]
-            WHERE Longitude IS NOT NULL AND Latitude IS NOT NULL
+            SELECT 
+                r.RequestID, 
+                t.Longitude, 
+                t.Latitude, 
+                CASE WHEN r.ProcessType = 1 THEN 'RoW'
+                     WHEN r.ProcessType = 2 THEN 'Tower & Mast'
+                     ELSE 'Other' END as category,
+                t.Type_of_Structure
+            FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
+            JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
+            WHERE t.Longitude IS NOT NULL AND t.Latitude IS NOT NULL
+              AND ((r.ProcessType = 1 AND r.StatusID = 13) OR (r.ProcessType = 2 AND r.StatusID = 28))
         `;
 
         let points = [];
@@ -35,7 +44,7 @@ router.get('/permits', async (req, res) => {
                     },
                     properties: {
                         id: p.RequestID,
-                        category: p.Site_Category,
+                        category: p.category,
                         type: p.Type_of_Structure
                     }
                 }))

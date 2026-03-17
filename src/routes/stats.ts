@@ -109,9 +109,7 @@ router.get('/distribution', async (req, res) => {
                 { status: 'Suspended', count: 720 }
             ],
             typeDistribution: [
-                { category: 'Fiber-ROW', count: 8500 },
-                { category: 'Gas-ROW', count: 1200 },
-                { category: 'Power-ROW', count: 2300 },
+                { category: 'RoW', count: 8500 },
                 { category: 'Tower & Mast', count: 2502 }
             ]
         };

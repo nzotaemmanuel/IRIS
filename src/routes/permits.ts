@@ -22,12 +22,18 @@ router.get('/', async (req, res) => {
         // Using raw pagination syntax depending on SQL server version.
         // Assuming SQL Server 2012+ (OFFSET/FETCH)
         const query = `
-            SELECT r.RequestID, r.RefNo as PermitID, c.CustomerName as Applicant, 
-                   cat.ProjectCategoryName as Category, r.ApplicationDate, 
-                   s.Status, e.EngineerName as AssignedOfficer
+            SELECT 
+                r.RequestID, 
+                r.RefNo as PermitID, 
+                c.CustomerName as Applicant, 
+                CASE WHEN r.ProcessType = 1 THEN 'RoW'
+                     WHEN r.ProcessType = 2 THEN 'Tower & Mast'
+                     ELSE 'Other' END as Category, 
+                r.ApplicationDate, 
+                s.Status, 
+                e.EngineerName as AssignedOfficer
             FROM [SmartBoxData].[LASIMRA_Request_SMO] r
             LEFT JOIN [SmartBoxData].[LASIMRA_CustomerDetails_SMO] c ON r.CustomerID = c.CustomerId
-            LEFT JOIN [SmartBoxData].[LASIMRA_ROWProcjectCategory_SMO] cat ON r.RoWProjectCategoryId = cat.ProjectCategoryID
             LEFT JOIN [SmartBoxData].[LASIMRA_StatusList_SMO] s ON r.StatusID = s.StatusCode
             LEFT JOIN [SmartBoxData].[EngineerInformations] e ON r.EngineerID = e.EngineerUserID
             WHERE (r.RefNo LIKE @search OR c.CustomerName LIKE @search)
