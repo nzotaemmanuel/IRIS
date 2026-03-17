@@ -19,7 +19,8 @@ const elements = {
     navLinks: document.querySelectorAll('.nav-item') as NodeListOf<HTMLLIElement>,
     viewSections: document.querySelectorAll('.view-section') as NodeListOf<HTMLDivElement>,
     viewTitle: document.getElementById('viewTitle') as HTMLHeadingElement,
-    socketStatus: document.getElementById('socketStatus') as HTMLDivElement
+    socketStatus: document.getElementById('socketStatus') as HTMLDivElement,
+    themeToggle: document.getElementById('themeToggle') as HTMLButtonElement
 };
 
 // --- Authentication Logic ---
@@ -121,6 +122,20 @@ const switchView = (viewId: string) => {
 elements.loginForm.addEventListener('submit', handleLogin);
 elements.logoutBtn.addEventListener('click', handleLogout);
 
+// --- Theme Toggle ---
+const toggleTheme = () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('iris_theme', newTheme);
+    
+    // Re-render charts to update their themes
+    initializeKPIDashboard();
+};
+
+elements.themeToggle?.addEventListener('click', toggleTheme);
+
 // --- Sidebar Toggle ---
 const sidebarToggle = document.getElementById('sidebarToggle') as HTMLButtonElement;
 const sidebar = document.querySelector('.sidebar') as HTMLElement;
@@ -137,6 +152,8 @@ elements.navLinks.forEach(link => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('iris_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
     checkAuth();
 });
 

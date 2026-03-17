@@ -1,28 +1,5 @@
 /* IRIS Sophisticated Design System - v2.0 */
 :root {
-  /* Core Colors */
-  --bg-main: #0b0e14;
-  --bg-sidebar: #11141b;
-  --bg-surface: #151921;
-  --bg-surface-elevated: #1c222d;
-  
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-soft: rgba(99, 102, 241, 0.1);
-  
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
-  
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-focus: rgba(99, 102, 241, 0.4);
-  
-  /* Semantic Colors */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
-  
   /* Measurements */
   --sidebar-width: 280px;
   --header-height: 80px;
@@ -30,11 +7,58 @@
   --radius-md: 12px;
   --radius-sm: 8px;
   
-  /* Shadow & Glass */
+  /* Shared Semantic Colors (same in both themes) */
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  /* Transitions */
+  --theme-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Dark Theme (Default) --- */
+:root, [data-theme='dark'] {
+  --bg-main: #0b0e14;
+  --bg-sidebar: #11141b;
+  --bg-surface: #151921;
+  --bg-surface-elevated: #1c222d;
+  
+  --primary-soft: rgba(99, 102, 241, 0.1);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-focus: rgba(99, 102, 241, 0.4);
+  
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --glass-bg: rgba(21, 25, 33, 0.8);
   --glass-blur: 12px;
+}
+
+/* --- Light Theme --- */
+[data-theme='light'] {
+  --bg-main: #f8fafc;
+  --bg-sidebar: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  
+  --primary-soft: rgba(99, 102, 241, 0.08);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+  
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-focus: rgba(99, 102, 241, 0.2);
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-blur: 16px;
 }
 
 /* --- Base & Reset --- */
@@ -51,6 +75,11 @@ body {
   line-height: 1.5;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color var(--theme-transition), color var(--theme-transition);
+}
+
+* {
+  transition: background-color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition);
 }
 
 h1, h2, h3, h4, .brand-text {
@@ -239,11 +268,16 @@ input:focus {
 .nav-item.active { background: var(--primary-soft); color: var(--primary); }
 
 .sidebar-footer {
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .user-avatar {
@@ -293,20 +327,21 @@ input:focus {
 
 .view-title h1 { font-size: 1.5rem; }
 
-.status-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0.5rem 1rem;
-  background: var(--bg-surface-elevated);
-  border-radius: 20px;
-  font-size: 0.875rem;
-  border: 1px solid var(--border-subtle);
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 1rem;
+  transition: all 0.2s;
 }
+.theme-toggle-btn:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+[data-theme='light'] .fa-moon:before { content: "\f185"; } /* Switch to sun icon in light mode */
 
-.dot { width: 8px; height: 8px; border-radius: 50%; }
-.dot.green { background: var(--success); box-shadow: 0 0 10px var(--success); }
-.dot.red { background: var(--danger); }
+/* Live Feed / Status Badge removed by user request */
 
 /* --- Views --- */
 .view-section { padding: 2.5rem; height: calc(100vh - var(--header-height)); overflow-y: auto; }

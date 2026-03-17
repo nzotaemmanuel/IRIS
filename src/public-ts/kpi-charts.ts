@@ -2,11 +2,14 @@ declare const Chart: any;
 
 let instances: { [key: string]: any } = {};
 
-const getChartTheme = () => ({
-    color: '#94a3b8',
-    font: { family: "'Inter', sans-serif", size: 11 },
-    grid: { color: 'rgba(255, 255, 255, 0.05)' }
-});
+const getChartTheme = () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    return {
+        color: isLight ? '#475569' : '#94a3b8',
+        font: { family: "'Inter', sans-serif", size: 11 },
+        grid: { color: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)' }
+    };
+};
 
 const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'];
 
