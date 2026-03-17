@@ -37,7 +37,7 @@ router.get('/structures', async (req: any, res: any) => {
       SELECT COUNT(t.ID) as value 
       FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
       JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
-      WHERE r.StatusID = 2
+      WHERE r.StatusID IN (13, 28)
     `);
     
     const distribution = await executeQuery(`
@@ -45,7 +45,7 @@ router.get('/structures', async (req: any, res: any) => {
       FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
       LEFT JOIN [SmartBoxData].[LASIMRA_SiteCategory_SMO] sc ON t.Site_Category = sc.ID
       JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
-      WHERE r.StatusID = 2
+      WHERE r.StatusID IN (13, 28)
       GROUP BY sc.Name
     `);
 
