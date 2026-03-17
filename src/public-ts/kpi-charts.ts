@@ -21,20 +21,21 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
     const theme = getChartTheme();
 
     const config: any = {
-        type: type,
+        type: type === 'horizontalBar' ? 'bar' : type,
         data: {
             labels: data.map(d => d.label || d.month || d.Outcome),
             datasets: [{
                 data: data.map(d => d.value || d.count || d.Revenue),
-                backgroundColor: type === 'doughnut' ? colors : colors[0],
+                backgroundColor: (type === 'doughnut' || type === 'horizontalBar') ? colors : colors[0],
                 borderColor: colors[0],
-                borderWidth: type === 'doughnut' ? 0 : 2,
-                borderRadius: type === 'bar' ? 6 : 0,
+                borderWidth: (type === 'doughnut' || type === 'horizontalBar') ? 0 : 2,
+                borderRadius: (type === 'bar' || type === 'horizontalBar') ? 6 : 0,
                 tension: 0.4,
                 fill: type === 'line'
             }]
         },
         options: {
+            indexAxis: type === 'horizontalBar' ? 'y' : 'x',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
@@ -46,11 +47,11 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
             },
             scales: type === 'doughnut' ? {} : {
                 y: { 
-                    grid: theme.grid,
+                    grid: type === 'horizontalBar' ? { display: false } : theme.grid,
                     ticks: { color: theme.color, font: theme.font }
                 },
                 x: {
-                    grid: { display: false },
+                    grid: type === 'horizontalBar' ? theme.grid : { display: false },
                     ticks: { color: theme.color, font: theme.font }
                 }
             }

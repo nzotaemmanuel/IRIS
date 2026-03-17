@@ -39,7 +39,7 @@ const updateKPIWidget = (domain: string, data: any) => {
             renderDomainChart(domain, 'bar', data.byChannel, 'chart-payments');
             break;
         case 'requests':
-            renderDomainChart(domain, 'doughnut', data.pipeline, 'chart-requests');
+            renderDomainChart(domain, 'horizontalBar', data.pipeline, 'chart-requests');
             break;
         case 'violations':
             renderDomainChart(domain, 'bar', data.byType, 'chart-violations');
