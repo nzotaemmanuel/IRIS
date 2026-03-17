@@ -33,12 +33,19 @@ router.get('/structures', async (req: any, res: any) => {
   if (cachedData) return res.json(cachedData);
 
   try {
-    const total = await executeQuery('SELECT COUNT(*) as value FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO]');
+    const total = await executeQuery(`
+      SELECT COUNT(t.ID) as value 
+      FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
+      JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
+      WHERE r.StatusID = 2
+    `);
     
     const distribution = await executeQuery(`
       SELECT sc.Name as label, COUNT(t.ID) as value
       FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO] t
       LEFT JOIN [SmartBoxData].[LASIMRA_SiteCategory_SMO] sc ON t.Site_Category = sc.ID
+      JOIN [SmartBoxData].[LASIMRA_Request_SMO] r ON t.RequestID = r.RequestID
+      WHERE r.StatusID = 2
       GROUP BY sc.Name
     `);
 
