@@ -54,21 +54,9 @@
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Revenue Analytics</span>
                 </li>
-                <li class="nav-item" data-view="map">
-                    <i class="fa-solid fa-earth-africa"></i>
-                    <span>Operations Map</span>
-                </li>
-                <li class="nav-item" data-view="dataGrid">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>Regulatory Records</span>
-                </li>
                 <li class="nav-item" data-view="reports">
                     <i class="fa-solid fa-file-contract"></i>
                     <span>Reports</span>
-                </li>
-                <li class="nav-item" data-view="settings">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Settings</span>
                 </li>
             </ul>
             <div class="sidebar-footer">
@@ -200,9 +188,10 @@
                             <canvas id="chart-payments"></canvas>
                         </div>
                     </div>
-                    <div class="card chart-card">
-                        <div class="card-header">
+                    <div class="card chart-card" id="card-requests">
+                        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
                             <h3>Application Status Pipeline</h3>
+                            <input type="text" id="requests-filter" placeholder="Filter status..." style="width:180px; padding:0.35rem 0.75rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main); font-size:0.8rem; outline:none;">
                         </div>
                         <div class="card-body">
                             <canvas id="chart-requests"></canvas>
@@ -231,38 +220,11 @@
                 </div>
             </div>
 
-            <!-- Map View -->
-            <div id="mapView" class="view-section hidden">
-                <div class="card map-container">
-                    <div id="map" style="height: 100%; width: 100%;"></div>
-                </div>
-            </div>
-
-            <!-- Data Grid View -->
-            <div id="dataGridView" class="view-section hidden">
-                <div class="card grid-container">
-                    <div class="card-header flex-between">
-                        <h3>Regulatory Registry</h3>
-                        <div class="grid-actions flex-between" style="gap: 15px;">
-                            <input type="text" id="gridSearch" placeholder="Filter records..." style="width: 300px;">
-                            <button id="exportCsvBtn" class="btn btn-outline"><i class="fa-solid fa-file-arrow-down"></i> Export Registry</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                         <div id="agGrid" class="ag-theme-alpine" style="height: 600px; width: 100%;"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Generic Views (Mocked) -->
             <div id="revenueView" class="view-section hidden">
                 <h2>Revenue Analytics coming soon...</h2>
             </div>
             <div id="reportsView" class="view-section hidden">
                 <h2>Reports Generation coming soon...</h2>
-            </div>
-            <div id="settingsView" class="view-section hidden">
-                <h2>Settings Panel coming soon...</h2>
             </div>
             
         </main>
@@ -270,10 +232,6 @@
 
     <!-- External Libs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
     <script src="/socket.io/socket.io.js"></script>
     
     <!-- Application Logic Compiled from TS -->

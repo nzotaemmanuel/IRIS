@@ -38,9 +38,26 @@ const updateKPIWidget = (domain: string, data: any) => {
         case 'payments':
             renderDomainChart(domain, 'bar', data.byChannel, 'chart-payments');
             break;
-        case 'requests':
-            renderDomainChart(domain, 'horizontalBar', data.pipeline, 'chart-requests');
+        case 'requests': {
+            const pipeline: any[] = data.pipeline || [];
+            renderDomainChart(domain, 'horizontalBar', pipeline, 'chart-requests');
+
+            // Wire up filter input
+            const filterInput = document.getElementById('requests-filter') as HTMLInputElement;
+            if (filterInput) {
+                // Remove old listener to prevent duplicates
+                const newInput = filterInput.cloneNode(true) as HTMLInputElement;
+                filterInput.parentNode!.replaceChild(newInput, filterInput);
+                newInput.addEventListener('input', () => {
+                    const term = newInput.value.toLowerCase();
+                    const filtered = term
+                        ? pipeline.filter(d => (d.label || d.Outcome || '').toLowerCase().includes(term))
+                        : pipeline;
+                    renderDomainChart(domain, 'horizontalBar', filtered, 'chart-requests');
+                });
+            }
             break;
+        }
         case 'violations':
             renderDomainChart(domain, 'bar', data.byType, 'chart-violations');
             break;

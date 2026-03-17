@@ -1,7 +1,3 @@
-import { fetchDashboardKPIs } from './dashboard.js';
-import { renderCharts } from './charts.js';
-import { initializeMap } from './maps.js';
-import { initializeGrid } from './grid.js';
 import { initializeSocket } from './realtime.js';
 import { initializeKPIDashboard } from './kpi-loader.js';
 import { customFetch } from './api.js';
@@ -120,13 +116,6 @@ const switchView = (viewId: string) => {
             section.classList.remove('active');
         }
     });
-
-    if (viewId === 'map') {
-        initializeMap();
-    }
-    if (viewId === 'dataGrid') {
-        initializeGrid();
-    }
 };
 
 elements.loginForm.addEventListener('submit', handleLogin);

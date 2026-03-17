@@ -56,7 +56,7 @@ ORDER BY RegYear ASC;
 -- C1: Active Customer Base
 SELECT COUNT(*) as ActiveCustomers 
 FROM [SmartBoxData].[LASIMRA_CustomerDetails_SMO] 
-WHERE StatusId = 2; -- ID 2 is 'Approved' based on sample data
+--WHERE StatusId = 2; -- ID 2 is 'Approved' based on sample data
 
 -- C2: Customer Growth Rate (By month proxy via Requests)
 SELECT 
