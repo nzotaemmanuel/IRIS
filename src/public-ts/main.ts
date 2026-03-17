@@ -25,6 +25,8 @@ const elements = {
 
 // --- Authentication Logic ---
 const checkAuth = () => {
+    const isLoginPage = window.location.pathname === '/login';
+
     if (accessToken && currentUser) {
         // User is logged in
         elements.loginOverlay.classList.add('hidden');
@@ -38,6 +40,11 @@ const checkAuth = () => {
         const initials = names.map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
         elements.avatarInitials.textContent = initials;
 
+        // Sync URL: If at /login, change to /
+        if (isLoginPage) {
+            window.history.replaceState({}, '', '/');
+        }
+
         // Initialize application modules
         initializeDashboard();
         initializeSocket();
@@ -45,6 +52,11 @@ const checkAuth = () => {
         // User is logged out
         elements.loginOverlay.classList.remove('hidden');
         elements.appWrapper.classList.add('hidden');
+
+        // Sync URL: If not at /login, change to /login
+        if (!isLoginPage) {
+            window.history.replaceState({}, '', '/login');
+        }
     }
 };
 
