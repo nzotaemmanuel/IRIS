@@ -29,9 +29,11 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
 
     // Create Gradient for Line/Area charts
     let gradient = null;
-    if (type === 'line' || type === 'bar') {
+    if (type === 'line' || type === 'bar' || type === 'horizontalBar') {
         gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)');
+        // Higher opacity for visibility
+        const opacity = (type === 'bar' || type === 'horizontalBar') ? 0.7 : 0.2;
+        gradient.addColorStop(0, isDark ? `rgba(99, 102, 241, ${opacity})` : `rgba(79, 70, 229, ${opacity})`);
         gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
     }
 
@@ -43,13 +45,17 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
                 data: data.map(d => d.value || d.count || d.Revenue),
                 backgroundColor: isCategoryChart ? colors : (gradient || colors[0]),
                 borderColor: type === 'doughnut' ? 'transparent' : colors[0],
-                borderWidth: type === 'line' ? 3 : 0,
+                borderWidth: (type === 'bar' || type === 'horizontalBar' || type === 'line') ? 2 : 0,
                 borderRadius: (type === 'bar' || type === 'horizontalBar') ? 8 : 0,
                 tension: 0.4,
                 fill: type === 'line',
                 pointBackgroundColor: colors[0],
                 pointRadius: type === 'line' ? 4 : 0,
-                pointHoverRadius: 6
+                pointHoverRadius: 6,
+                // Add hover states for extra pop
+                hoverBackgroundColor: isDark ? 'rgba(99, 102, 241, 0.9)' : 'rgba(79, 70, 229, 0.9)',
+                hoverBorderColor: isDark ? '#f8fafc' : '#ffffff',
+                hoverBorderWidth: 2
             }]
         },
         options: {
