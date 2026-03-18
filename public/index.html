@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IRIS | LASIMRA Command Center</title>
     <!-- Google Fonts: Outfit for headers, Inter for body -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Custom CSS -->
@@ -42,20 +42,23 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <img src="/assets/logo.png" alt="Logo" class="brand-logo">
-                <span class="brand-text">IRIS</span>
+                <img src="/assets/logo.png" alt="LASIMRA Logo" class="brand-logo">
+                <div class="brand-text-container">
+                    <span class="brand-title">IRIS</span>
+                    <span class="brand-subtitle">Infrastructure Regulatory Intelligence System</span>
+                </div>
             </div>
             <ul class="nav-links">
                 <li class="nav-item active" data-view="dashboard">
-                    <i class="fa-solid fa-shapes"></i>
+                    <i data-lucide="layout-grid"></i>
                     <span>Executive Overview</span>
                 </li>
                 <li class="nav-item" data-view="revenue">
-                    <i class="fa-solid fa-chart-line"></i>
+                    <i data-lucide="bar-chart-3"></i>
                     <span>Revenue Analytics</span>
                 </li>
                 <li class="nav-item" data-view="reports">
-                    <i class="fa-solid fa-file-contract"></i>
+                    <i data-lucide="file-text"></i>
                     <span>Reports</span>
                 </li>
             </ul>
@@ -69,8 +72,8 @@
             <!-- Header -->
             <header class="top-header">
                 <div class="header-left">
-                    <button id="sidebarToggle" class="btn-icon sidebar-toggle-btn" title="Toggle Sidebar">
-                        <i class="fa-solid fa-bars"></i>
+                    <button id="sidebarToggle" class="sidebar-toggle-btn" title="Toggle Sidebar">
+                        <i data-lucide="menu"></i>
                     </button>
                     <div class="view-title">
                         <h1 id="viewTitle">Executive Overview</h1>
@@ -85,10 +88,12 @@
                         <div class="user-avatar" id="avatarInitials">EN</div>
                     </div>
                     <div class="header-tools">
-                        <button id="themeToggle" class="btn-icon theme-toggle-btn" title="Switch Theme">
-                            <i class="fa-solid fa-moon"></i>
+                        <button id="themeToggle" class="theme-toggle-btn" title="Switch Theme">
+                            <i data-lucide="moon" id="themeIcon"></i>
                         </button>
-                        <button id="logoutBtn" class="btn-icon" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                        <button id="logoutBtn" class="logout-btn" title="Logout">
+                            <i data-lucide="log-out"></i>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -98,83 +103,83 @@
                 <!-- KPI Grid (8 Domains) -->
                 <div class="kpi-grid">
                     <!-- Domain 1: Structures -->
-                    <div class="kpi-card" data-domain="structures">
+                    <div class="kpi-card glass-card" data-domain="structures">
                         <div class="kpi-info">
                             <h3>STRUCTURES</h3>
                             <h2 id="kpi-structures-total">0</h2>
                         </div>
                         <div class="kpi-icon-box blue">
-                            <i class="fa-solid fa-tower-broadcast"></i>
+                            <i data-lucide="tower-control"></i>
                         </div>
                     </div>
                     <!-- Domain 2: Customers -->
-                    <div class="kpi-card" data-domain="customers">
+                    <div class="kpi-card glass-card" data-domain="customers">
                         <div class="kpi-info">
                             <h3>CUSTOMERS</h3>
                             <h2 id="kpi-customers-total">0</h2>
                         </div>
                         <div class="kpi-icon-box emerald">
-                            <i class="fa-solid fa-users-viewfinder"></i>
+                            <i data-lucide="users"></i>
                         </div>
                     </div>
                     <!-- Domain 3: Arrears -->
-                    <div class="kpi-card" data-domain="arrears">
+                    <div class="kpi-card glass-card" data-domain="arrears">
                         <div class="kpi-info">
                             <h3>GROSS ARREARS</h3>
                             <h2 id="kpi-arrears-total">₦0.00</h2>
                         </div>
                         <div class="kpi-icon-box red">
-                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                            <i data-lucide="alert-circle"></i>
                         </div>
                     </div>
                     <!-- Domain 4: Payments -->
-                    <div class="kpi-card" data-domain="payments">
+                    <div class="kpi-card glass-card" data-domain="payments">
                         <div class="kpi-info">
                             <h3>TOTAL REVENUE</h3>
                             <h2 id="kpi-payments-total">₦0.00</h2>
                         </div>
                         <div class="kpi-icon-box blue">
-                            <i class="fa-solid fa-naira-sign"></i>
+                            <i data-lucide="credit-card"></i>
                         </div>
                     </div>
                     <!-- Domain 5: Requests -->
-                    <div class="kpi-card" data-domain="requests">
+                    <div class="kpi-card glass-card" data-domain="requests">
                         <div class="kpi-info">
                             <h3>TOTAL REQUESTS</h3>
                             <h2 id="kpi-requests-total">0</h2>
                         </div>
                         <div class="kpi-icon-box amber">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <i data-lucide="clipboard-list"></i>
                         </div>
                     </div>
                     <!-- Domain 6: Permits -->
-                    <div class="kpi-card" data-domain="permits">
+                    <div class="kpi-card glass-card" data-domain="permits">
                         <div class="kpi-info">
                             <h3>ISSUED PERMITS</h3>
                             <h2 id="kpi-permits-total">0</h2>
                         </div>
                         <div class="kpi-icon-box indigo">
-                            <i class="fa-solid fa-memo-circle-check"></i>
+                            <i data-lucide="file-check"></i>
                         </div>
                     </div>
                     <!-- Domain 7: Surveillance -->
-                    <div class="kpi-card" data-domain="surveillance">
+                    <div class="kpi-card glass-card" data-domain="surveillance">
                         <div class="kpi-info">
                             <h3>FIELD INSPECTIONS</h3>
                             <h2 id="kpi-surveillance-total">0</h2>
                         </div>
                         <div class="kpi-icon-box orange">
-                            <i class="fa-solid fa-helmet-safety"></i>
+                            <i data-lucide="hard-hat"></i>
                         </div>
                     </div>
                     <!-- Domain 8: Violations -->
-                    <div class="kpi-card" data-domain="violations">
+                    <div class="kpi-card glass-card" data-domain="violations">
                         <div class="kpi-info">
                             <h3>TOTAL VIOLATIONS</h3>
                             <h2 id="kpi-violations-total">0</h2>
                         </div>
                         <div class="kpi-icon-box red">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <i data-lucide="shield-alert"></i>
                         </div>
                     </div>
                 </div>
@@ -243,6 +248,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
     <!-- Application Logic Compiled from TS -->
     <script type="module" src="/js/main.js"></script>
 </body>

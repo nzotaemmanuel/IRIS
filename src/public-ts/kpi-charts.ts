@@ -11,10 +11,12 @@ const getChartTheme = () => {
     };
 };
 
-const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'];
+const colors = ['#6366f1', '#22d3ee', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#f97316'];
 
 export const renderDomainChart = (domain: string, type: string, data: any[], containerId: string) => {
-    const ctx = document.getElementById(containerId) as HTMLCanvasElement;
+    const canvas = document.getElementById(containerId) as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     if (instances[containerId]) {
@@ -22,6 +24,15 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
     }
 
     const theme = getChartTheme();
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+    // Create Gradient for Line/Area charts
+    let gradient = null;
+    if (type === 'line' || type === 'bar') {
+        gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+    }
 
     const config: any = {
         type: type === 'horizontalBar' ? 'bar' : type,
@@ -29,12 +40,15 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
             labels: data.map(d => d.label || d.month || d.Outcome),
             datasets: [{
                 data: data.map(d => d.value || d.count || d.Revenue),
-                backgroundColor: (type === 'doughnut' || type === 'horizontalBar') ? colors : colors[0],
-                borderColor: colors[0],
-                borderWidth: (type === 'doughnut' || type === 'horizontalBar') ? 0 : 2,
-                borderRadius: (type === 'bar' || type === 'horizontalBar') ? 6 : 0,
+                backgroundColor: (type === 'doughnut' || type === 'horizontalBar') ? colors : (gradient || colors[0]),
+                borderColor: type === 'doughnut' ? 'transparent' : colors[0],
+                borderWidth: type === 'line' ? 3 : 0,
+                borderRadius: (type === 'bar' || type === 'horizontalBar') ? 8 : 0,
                 tension: 0.4,
-                fill: type === 'line'
+                fill: type === 'line',
+                pointBackgroundColor: colors[0],
+                pointRadius: type === 'line' ? 4 : 0,
+                pointHoverRadius: 6
             }]
         },
         options: {
@@ -45,29 +59,49 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
                 legend: { 
                     display: type === 'doughnut',
                     position: 'bottom',
-                    labels: { color: '#94a3b8', usePointStyle: true, font: { size: 11 } }
+                    labels: { 
+                        color: theme.color, 
+                        usePointStyle: true, 
+                        pointStyle: 'circle',
+                        font: { size: 12, weight: '500' },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                    titleColor: isDark ? '#f8fafc' : '#0f172a',
+                    bodyColor: isDark ? '#94a3b8' : '#475569',
+                    borderColor: 'rgba(99, 102, 241, 0.2)',
+                    borderWidth: 1,
+                    padding: 12,
+                    boxPadding: 8,
+                    cornerRadius: 8,
+                    usePointStyle: true
                 }
             },
             scales: type === 'doughnut' ? {} : {
                 y: { 
-                    grid: type === 'horizontalBar' ? { display: false } : theme.grid,
+                    grid: {
+                        color: theme.grid.color,
+                        drawBorder: false,
+                    },
                     ticks: { 
                         color: theme.color, 
                         font: theme.font,
-                        autoSkip: false // Ensure all status labels are shown
+                        padding: 10
                     }
                 },
                 x: {
-                    grid: type === 'horizontalBar' ? theme.grid : { display: false },
-                    ticks: { color: theme.color, font: theme.font }
+                    grid: { display: false },
+                    ticks: { 
+                        color: theme.color, 
+                        font: theme.font,
+                        padding: 10
+                    }
                 }
             }
         }
     };
-
-    if (type === 'line') {
-        config.data.datasets[0].backgroundColor = 'rgba(99, 102, 241, 0.1)';
-    }
 
     instances[containerId] = new Chart(ctx, config);
 };

@@ -20,7 +20,15 @@ const elements = {
     viewSections: document.querySelectorAll('.view-section') as NodeListOf<HTMLDivElement>,
     viewTitle: document.getElementById('viewTitle') as HTMLHeadingElement,
     socketStatus: document.getElementById('socketStatus') as HTMLDivElement,
-    themeToggle: document.getElementById('themeToggle') as HTMLButtonElement
+    themeToggle: document.getElementById('themeToggle') as HTMLButtonElement,
+    themeIcon: document.getElementById('themeIcon') as HTMLElement
+};
+
+// Lucide helper
+const refreshIcons = () => {
+    if ((window as any).lucide) {
+        (window as any).lucide.createIcons();
+    }
 };
 
 // --- Authentication Logic ---
@@ -48,6 +56,7 @@ const checkAuth = () => {
         // Initialize application modules
         initializeDashboard();
         initializeSocket();
+        refreshIcons();
     } else {
         // User is logged out
         elements.loginOverlay.classList.remove('hidden');
@@ -129,22 +138,33 @@ const switchView = (viewId: string) => {
             section.classList.remove('active');
         }
     });
+    
+    refreshIcons();
 };
 
 elements.loginForm.addEventListener('submit', handleLogin);
 elements.logoutBtn.addEventListener('click', handleLogout);
 
 // --- Theme Toggle ---
+const updateThemeUI = (theme: string) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (elements.themeIcon) {
+        elements.themeIcon.setAttribute('data-lucide', theme === 'dark' ? 'moon' : 'sun');
+    }
+    refreshIcons();
+    // Re-render charts to update their themes
+    initializeKPIDashboard();
+};
+
 const toggleTheme = () => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     
-    document.documentElement.setAttribute('data-theme', newTheme);
+    updateThemeUI(newTheme);
     localStorage.setItem('iris_theme', newTheme);
-    
-    // Re-render charts to update their themes
-    initializeKPIDashboard();
 };
+
+elements.themeToggle?.addEventListener('click', toggleTheme);
 
 elements.themeToggle?.addEventListener('click', toggleTheme);
 
@@ -165,7 +185,7 @@ elements.navLinks.forEach(link => {
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('iris_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeUI(savedTheme);
     checkAuth();
 });
 
