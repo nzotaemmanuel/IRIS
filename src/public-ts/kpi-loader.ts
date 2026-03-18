@@ -33,7 +33,7 @@ const updateKPIWidget = (domain: string, data: any) => {
     // Render Associated Chart if exists
     switch (domain) {
         case 'structures':
-            renderDomainChart(domain, 'doughnut', data.distribution, 'chart-structures');
+            renderDomainChart(domain, 'bar', data.distribution, 'chart-structures');
             break;
         case 'payments':
             renderDomainChart(domain, 'bar', data.byChannel, 'chart-payments');

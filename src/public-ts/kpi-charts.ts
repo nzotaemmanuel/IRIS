@@ -24,6 +24,7 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
     }
 
     const theme = getChartTheme();
+    const isCategoryChart = type === 'doughnut' || type === 'horizontalBar' || (type === 'bar' && domain === 'structures');
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
     // Create Gradient for Line/Area charts
@@ -40,7 +41,7 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
             labels: data.map(d => d.label || d.month || d.Outcome),
             datasets: [{
                 data: data.map(d => d.value || d.count || d.Revenue),
-                backgroundColor: (type === 'doughnut' || type === 'horizontalBar') ? colors : (gradient || colors[0]),
+                backgroundColor: isCategoryChart ? colors : (gradient || colors[0]),
                 borderColor: type === 'doughnut' ? 'transparent' : colors[0],
                 borderWidth: type === 'line' ? 3 : 0,
                 borderRadius: (type === 'bar' || type === 'horizontalBar') ? 8 : 0,
