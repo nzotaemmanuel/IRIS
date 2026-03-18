@@ -45,7 +45,7 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
                 data: data.map(d => d.value || d.count || d.Revenue),
                 backgroundColor: isCategoryChart ? colors : (gradient || colors[0]),
                 borderColor: type === 'doughnut' ? 'transparent' : colors[0],
-                borderWidth: (type === 'bar' || type === 'horizontalBar' || type === 'line') ? 2 : 0,
+                borderWidth: type === 'line' ? 2 : 0,
                 borderRadius: (type === 'bar' || type === 'horizontalBar') ? 8 : 0,
                 tension: 0.4,
                 fill: type === 'line',
