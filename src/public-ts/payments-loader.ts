@@ -14,10 +14,17 @@ export const initializePaymentsLoader = async () => {
     console.log('💰 Initializing Payments Analytics...');
     
     try {
+        // Get initial filter values
+        const lgaFilter = document.getElementById('payments-lga-filter') as HTMLSelectElement;
+        const periodFilter = document.getElementById('payments-period-filter') as HTMLSelectElement;
+        const initialPeriod = periodFilter ? periodFilter.value : 'all';
+        const initialTrend = initialPeriod === 'all' ? 'month' : 'day';
+        const initialFilters = { period: initialPeriod, trendPeriod: initialTrend, lgaId: lgaFilter ? lgaFilter.value : '' };
+
         // Initial load
         await Promise.all([
-            loadPayments().catch(e => console.error('loadPayments failed:', e)),
-            loadPaymentTrend().catch(e => console.error('loadPaymentTrend failed:', e)),
+            loadPayments({ lgaId: initialFilters.lgaId, period: initialFilters.period }).catch(e => console.error('loadPayments failed:', e)),
+            loadPaymentTrend(initialFilters).catch(e => console.error('loadPaymentTrend failed:', e)),
             populateLGADropdown().catch(e => console.error('populateLGADropdown failed:', e))
         ]);
         
