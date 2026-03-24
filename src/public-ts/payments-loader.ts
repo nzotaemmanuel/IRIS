@@ -36,15 +36,18 @@ const setupEventListeners = () => {
     const searchInput = document.getElementById('payments-search') as HTMLInputElement;
     const lgaFilter = document.getElementById('payments-lga-filter') as HTMLSelectElement;
     const periodFilter = document.getElementById('payments-period-filter') as HTMLSelectElement;
-    const periodSelector = document.getElementById('payments-trend-period') as HTMLSelectElement;
 
     const handleChange = () => {
+        const period = periodFilter.value;
+        // Automate trend granularity: All Time -> Monthly, others -> Daily
+        const trendPeriod = period === 'all' ? 'month' : 'day';
+
         const filters = {
             lgaId: lgaFilter.value,
-            period: periodFilter.value,
-            trendPeriod: periodSelector.value
+            period: period,
+            trendPeriod: trendPeriod
         };
-        console.log('Filters changed:', filters);
+        console.log('Filters changed (Auto-Granularity):', filters);
         loadPayments({ lgaId: filters.lgaId, period: filters.period });
         loadPaymentTrend(filters);
     };
@@ -57,7 +60,6 @@ const setupEventListeners = () => {
     }
 
     lgaFilter?.addEventListener('change', handleChange);
-    periodSelector?.addEventListener('change', handleChange);
     periodFilter?.addEventListener('change', handleChange);
 };
 
@@ -145,8 +147,8 @@ const loadPaymentTrend = async (filters: any = {}) => {
         // Always ensure a complete timeframe (fill gaps in the series)
         const filledData = fillDataGaps(apiData, filters.period || 'all', filters.trendPeriod || 'day');
 
-        // Pass 'isEmpty' flag to show overlay if no ACTUAL data exists
-        renderTrendChart(canvas, filledData, apiData.length === 0);
+        // Pass 'isEmpty' flag and 'trendPeriod' to renderTrendChart
+        renderTrendChart(canvas, filledData, apiData.length === 0, filters.trendPeriod || 'day');
     } catch (err) {
         console.error('Failed to load trend data:', err);
     }
@@ -249,7 +251,7 @@ const updateChartOverlay = (containerId: string, show: boolean) => {
 /**
  * Render Chart.js Trend Analytics
  */
-const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boolean = false) => {
+const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boolean = false, trendPeriod: string = 'day') => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -280,9 +282,6 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
     gradient.addColorStop(0, isDark ? 'rgba(99, 102, 241, 0.4)' : 'rgba(99, 102, 241, 0.2)');
     gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
-    const periodSelector = document.getElementById('payments-trend-period') as HTMLSelectElement;
-    const period = periodSelector?.value || 'day';
-
     trendChart = new ChartLib(ctx, {
         type: 'line',
         data: {
@@ -290,13 +289,13 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
                 // If a explicit displayLabel exists (from skeleton), use it
                 if (d.displayLabel) return d.displayLabel;
 
-                if (period === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-                if (period === 'month') {
+                if (trendPeriod === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                if (trendPeriod === 'month') {
                     // Handle yyyy-MM
                     const date = new Date(d.label + '-01');
                     return date.toLocaleDateString('en-GB', { month: 'short' });
                 }
-                if (period === 'week') return d.label; // yyyy-Wxx
+                if (trendPeriod === 'week') return d.label; // yyyy-Wxx
                 return d.label; // yyyy
             }),
             datasets: [{
