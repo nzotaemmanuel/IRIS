@@ -1,0 +1,19 @@
+{
+  "cols": [
+    "LASIMRA_ROWTypsofPipes.ID",
+    "LASIMRA_ROWTypsofPipes.PipesTypeCode",
+    "LASIMRA_ROWTypsofPipes.PipesTypeName",
+    "LASIMRA_ROWProcjectCategory_SMO.ALTONFeePerMeter",
+    "LASIMRA_ROWProcjectCategory_SMO.FeePerMeter",
+    "LASIMRA_ROWProcjectCategory_SMO.ID",
+    "LASIMRA_ROWProcjectCategory_SMO.ProjectCategoryCode",
+    "LASIMRA_ROWProcjectCategory_SMO.ProjectCategoryName",
+    "LASIMRA_ROWNumberOfWays_SMO.ID",
+    "LASIMRA_ROWNumberOfWays_SMO.NumberOfWaysCode",
+    "LASIMRA_ROWNumberOfWays_SMO.NumberOfWaysName",
+    "LASIMRA_ROWBillGenerationTeam_SMO.ID",
+    "LASIMRA_ROWBillGenerationTeam_SMO.ProjectCategoryID",
+    "LASIMRA_ROWBillGenerationTeam_SMO.UserID",
+    "LASIMRA_ROWBillGenerationTeam_SMO.UserName"
+  ]
+}

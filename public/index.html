@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Login Overlay -->
@@ -52,6 +54,14 @@
                 <li class="nav-item active" data-view="dashboard">
                     <i data-lucide="layout-grid"></i>
                     <span>Executive Overview</span>
+                </li>
+                <li class="nav-item" data-view="structures">
+                    <i data-lucide="tower-control"></i>
+                    <span>Structures</span>
+                </li>
+                <li class="nav-item" data-view="payments">
+                    <i data-lucide="credit-card"></i>
+                    <span>Payments</span>
                 </li>
                 <li class="nav-item" data-view="revenue">
                     <i data-lucide="bar-chart-3"></i>
@@ -240,12 +250,123 @@
             <div id="reportsView" class="view-section hidden">
                 <h2>Reports Generation coming soon...</h2>
             </div>
+
+            <!-- Structures View -->
+            <div id="structuresView" class="view-section hidden">
+                <div class="view-header-row">
+                    <h2>Infrastructure Assets</h2>
+                    <div class="view-header-actions">
+                        <div class="search-bar">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="structures-search" placeholder="Search structures...">
+                        </div>
+                    </div>
+                </div>
+                <div class="data-table-container glass-card">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Site ID</th>
+                                <th>Address</th>
+                                <th>LGA</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="structures-list">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payments View -->
+            <div id="paymentsView" class="view-section hidden">
+                <div class="view-header-row mb-20">
+                    <div class="header-left-group">
+                        <h2 class="section-title">Transaction Analytics</h2>
+                        <p class="section-subtitle">Monitor and filter real-time payment flows across all LGAs</p>
+                    </div>
+                    <div class="header-stats-row">
+                        <div class="mini-stat-card">
+                            <span class="stat-label">Total Revenue</span>
+                            <span class="stat-value" id="payments-total-revenue">₦0.00</span>
+                        </div>
+                        <div class="mini-stat-card">
+                            <span class="stat-label">Transaction Count</span>
+                            <span class="stat-value" id="payments-total-count">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-toolbar glass-card mb-20">
+                    <div class="toolbar-search">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="payments-search" placeholder="Search by name or reference...">
+                    </div>
+                    <div class="toolbar-filters">
+                        <div class="filter-item">
+                            <label><i data-lucide="map-pin"></i> LGA</label>
+                            <select id="payments-lga-filter">
+                                <option value="">All LGAs</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label><i data-lucide="calendar"></i> Date Range</label>
+                            <div class="date-range-group">
+                                <input type="date" id="payments-start-date">
+                                <span>to</span>
+                                <input type="date" id="payments-end-date">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trend Chart Section -->
+                <div class="analytics-bento-grid mb-20">
+                    <div class="card chart-card bento-main">
+                        <div class="card-header">
+                            <h3><i data-lucide="trending-up" class="text-primary"></i> Payment Trends</h3>
+                            <div class="header-actions">
+                                <select id="payments-trend-period" class="premium-select-sm">
+                                    <option value="day">Daily</option>
+                                    <option value="week">Weekly</option>
+                                    <option value="month">Monthly</option>
+                                    <option value="year">Yearly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body" style="height: 350px;">
+                            <canvas id="paymentTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-table-container glass-card">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Customer</th>
+                                <th>LGA</th>
+                                <th>Amount</th>
+                                <th>Mode</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-list">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             
         </main>
     </div>
 
     <!-- External Libs -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     
     <script>
@@ -253,6 +374,7 @@
         lucide.createIcons();
     </script>
     <!-- Application Logic Compiled from TS -->
-    <script type="module" src="/js/main.js"></script>
+    <div id="IRIS_V2_VERIFIED_MARKER" style="display:none;"></div>
+    <script type="module" src="/js/main.js?v=2.0.1"></script>
 </body>
 </html>

@@ -1,0 +1,316 @@
+{
+  "EngineerInformations": [
+    "ID",
+    "EngineerName",
+    "EngineerPhoneNumber",
+    "EngineerEmail",
+    "EngineerUserID"
+  ],
+  "LASIMRA_CommercialDepartmentMembers_SMO": [
+    "ID",
+    "AreaOfficeName",
+    "AreaOfficerEmail",
+    "Active"
+  ],
+  "LASIMRA_ConstructionCompanyDetails_SMO": [
+    "ID",
+    "RequestID",
+    "Name",
+    "Office_Address",
+    "Phone_No",
+    "RC_NO",
+    "Contact_Person_Name",
+    "Contact_Person_Phone",
+    "Contact_Person_Email",
+    "SiteRefNo"
+  ],
+  "LASIMRA_CustomerDetails_SMO": [
+    "ID",
+    "CustomerId",
+    "CustomerName",
+    "OfficePhone",
+    "RCNO",
+    "OfficeAddress",
+    "ContactPersonName",
+    "ContactPersonPhoneNo",
+    "ContactPersonEmail",
+    "IsALTON",
+    "StatusId",
+    "Arrears",
+    "ContactPersonUserID",
+    "VerificationCode",
+    "IsVerified"
+  ],
+  "LASIMRA_InfrastrucureCategory_SMO": [
+    "InfrastructureID",
+    "InfrastructureName",
+    "InfrastructureCode"
+  ],
+  "LASIMRA_LocalGovernment_SMO": [
+    "ID",
+    "LGACode",
+    "LGAName",
+    "AreaOfficerName",
+    "AreaOfficerEmail",
+    "Active"
+  ],
+  "LASIMRA_MAST_Consultants_Details_SMO": [
+    "ID",
+    "NameOfOrganization",
+    "Email",
+    "ContactPerson",
+    "OfficePhoneNo",
+    "RCNO",
+    "IsActive",
+    "SiteRefNo"
+  ],
+  "LASIMRA_MASTFees_SMO": [
+    "ID",
+    "Code",
+    "Fee",
+    "ALTONFees"
+  ],
+  "LASIMRA_Payment_SMO": [
+    "ID",
+    "RequestID",
+    "CustomerID",
+    "PaymentFor",
+    "TxtRef",
+    "Status",
+    "flwRef",
+    "PaymentMode",
+    "AmountRequested",
+    "AmountPaid",
+    "CustomerEmail",
+    "LastMessage",
+    "ReturnStatus",
+    "ReturnChargeCode",
+    "ReturnPaymentType",
+    "IsCancelled",
+    "HostedPaymentLink",
+    "RequestStatus",
+    "TimeStamp",
+    "BillPDFID",
+    "Pid",
+    "Receipt",
+    "paymentRef",
+    "PaymentStatus",
+    "PaymentStatusMessage",
+    "WfStart",
+    "HttpBillGeneration",
+    "RevenuCode",
+    "AgencyCode"
+  ],
+  "LASIMRA_Permits_SMO": [
+    "ID",
+    "RequestID",
+    "Permit",
+    "UploadDate",
+    "CreatedBy"
+  ],
+  "LASIMRA_Request_SMO": [
+    "RequestID",
+    "CustomerID",
+    "RefNo",
+    "StatusID",
+    "RequestTitle",
+    "ApplicationDate",
+    "CommencementDate",
+    "CreatedByName",
+    "CreatedByDisplayName",
+    "PDFID",
+    "IsInstalled",
+    "ProcessType",
+    "PermitYest",
+    "ApprovalDate",
+    "IsRenewed",
+    "InspectionVisitDate",
+    "EngineerID",
+    "RoWProjectName",
+    "RoWProjectCategoryId",
+    "RoWInspectionVisitDate",
+    "RoWEngineerId",
+    "WGuid",
+    "Pay4it"
+  ],
+  "LASIMRA_ROWBillGenerationTeam_SMO": [
+    "ID",
+    "UserName",
+    "UserID",
+    "ProjectCategoryID"
+  ],
+  "LASIMRA_ROWNumberOfWays_SMO": [
+    "ID",
+    "NumberOfWaysName",
+    "NumberOfWaysCode"
+  ],
+  "LASIMRA_ROWProcjectCategory_SMO": [
+    "ID",
+    "ProjectCategoryName",
+    "ProjectCategoryCode",
+    "FeePerMeter",
+    "ALTONFeePerMeter"
+  ],
+  "LASIMRA_ROWTypsofPipes": [
+    "ID",
+    "PipesTypeName",
+    "PipesTypeCode"
+  ],
+  "LASIMRA_SiteCategory_SMO": [
+    "ID",
+    "Name",
+    "Code"
+  ],
+  "LASIMRA_SiteInspection_SMO_1": [
+    "ID",
+    "RequestID",
+    "InspectionDate",
+    "ROWSpecification",
+    "Client",
+    "Contractor",
+    "ContactPersonNumber",
+    "LocationRoutes",
+    "TotalDistance",
+    "Remarks",
+    "RouteBreakDownAsphalt",
+    "RouteBreakDownConcrete_",
+    "RouteBreakDownPavingStone",
+    "RouteBreakDownLawan",
+    "RouteBreakDownSoilEarth",
+    "RouteBreakDownThrustBoring",
+    "RouteBreakDownBrigeAttachment",
+    "RouteBreakDownNumberOfVulvePit_",
+    "RouteBreakDownJunctionBox",
+    "RouteBreakDownLeasingDuct"
+  ],
+  "LASIMRA_SiteInspectionDetails_SMO": [
+    "ID",
+    "RequestID",
+    "LocationRoutes",
+    "RouteBreakDownAsphalt",
+    "RouteBreakDownConcrete_",
+    "RouteBreakDownPavingStone",
+    "RouteBreakDownLawan",
+    "RouteBreakDownSoilEarth",
+    "RouteBreakDownThrustBoring",
+    "RouteBreakDownBrigeAttachment",
+    "RouteBreakDownNumberOfVulvePit_",
+    "JunctionBox",
+    "LeasingDuct"
+  ],
+  "LASIMRA_StaffDetails_SMO": [
+    "ID",
+    "Name",
+    "EmailAddress",
+    "PhoneNumber",
+    "Designation",
+    "Role",
+    "PasswordHash"
+  ],
+  "LASIMRA_StatusList_SMO": [
+    "ID",
+    "Status",
+    "StatusCode",
+    "Category"
+  ],
+  "LASIMRA_StructureType_SMO": [
+    "StructureTypeID",
+    "StructureTypeName",
+    "StructureTypeCode"
+  ],
+  "LASIMRA_SurveillanceGroups_SMO": [
+    "ID",
+    "GroupName"
+  ],
+  "LASIMRA_SurveillanceTeams_SMO": [
+    "ID",
+    "GroupName",
+    "UserName",
+    "UserID"
+  ],
+  "LASIMRA_SurvillanceRequest_SMO": [
+    "ID",
+    "RequestID_1",
+    "SiteName",
+    "SiteAddress",
+    "LGAID",
+    "Subject",
+    "InfrastrucureCategory",
+    "IsCustomerRegistered",
+    "CustomerID",
+    "IsEquipmentRegistered",
+    "RequestID",
+    "ViolationType",
+    "Overview",
+    "Details",
+    "ActionTaken",
+    "PenaltyFees",
+    "GroupID"
+  ],
+  "LASIMRA_SystemKeys_SMO": [
+    "ID",
+    "KeyCode",
+    "Key"
+  ],
+  "LASIMRA_TowerMast_Reqeust_SMO": [
+    "MastID",
+    "RequestID",
+    "SiteAddress",
+    "Longtitude",
+    "Latitude",
+    "Elevation",
+    "LoadCapacity",
+    "RFRadiationLevel",
+    "RadiusOfPotentialHazardArea",
+    "SiteCategory",
+    "OtherSiteCategory",
+    "TypeOfStructure",
+    "StructureHeight",
+    "Comment",
+    "ItemFee",
+    "SiteRefNo"
+  ],
+  "LASIMRA_TowerMast_Request_SMO": [
+    "MastID",
+    "RequestID",
+    "Comment",
+    "LocalGovernmentArea_",
+    "SiteNameSiteID",
+    "ConsultantID_",
+    "CountOfMasts",
+    "SiteAssessmentFees",
+    "SiteRefNo",
+    "ReqRefNo"
+  ],
+  "LASIMRA_TowerMastDetails_SMO": [
+    "ID",
+    "Reference_Number",
+    "Site_Address",
+    "Local_Government_Area",
+    "Site_Name__SiteID__Code_",
+    "Longtitude",
+    "Latitude",
+    "Elevation",
+    "Load_Capacity",
+    "RF_Radiation_Level",
+    "Radius_of_Potential_Hazard_Area",
+    "Site_Category",
+    "Other_Site_Category",
+    "Type_of_Structure__Tower__Mast_",
+    "StructureHeight",
+    "Comment_"
+  ],
+  "LASIMRA_ViolationTypes_SMO": [
+    "ViolationID",
+    "ViolationName",
+    "ViolationCode"
+  ],
+  "LASIMRA_ProcessDefinition_SMO": [
+    "ID",
+    "ProcessType",
+    "ApprovalURL",
+    "ViewURL",
+    "InstallationURL",
+    "RenewalURL"
+  ]
+}

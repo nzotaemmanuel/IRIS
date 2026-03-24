@@ -1,0 +1,12 @@
+--- Columns for LASIMRA_Payment_SMO ---
+ID, RequestID, CustomerID, PaymentFor, TxtRef, Status, flwRef, PaymentMode, AmountRequested, AmountPaid, CustomerEmail, LastMessage, ReturnStatus, ReturnChargeCode, ReturnPaymentType, IsCancelled, HostedPaymentLink, RequestStatus, TimeStamp, BillPDFID, Pid, Receipt, paymentRef, PaymentStatus, PaymentStatusMessage, WfStart, HttpBillGeneration, RevenuCode, AgencyCode
+
+--- Columns for LASIMRA_Request_SMO ---
+RequestID, CustomerID, RefNo, StatusID, RequestTitle, ApplicationDate, CommencementDate, CreatedByName, CreatedByDisplayName, PDFID, IsInstalled, ProcessType, PermitYest, ApprovalDate, IsRenewed, InspectionVisitDate, EngineerID, RoWProjectName, RoWProjectCategoryId, RoWInspectionVisitDate, RoWEngineerId, WGuid, Pay4it
+
+--- Columns for LASIMRA_TowerMastDetails_SMO ---
+ID, Reference_Number, Site_Address, Local_Government_Area, Site_Name__SiteID__Code_, Longtitude, Latitude, Elevation, Load_Capacity, RF_Radiation_Level, Radius_of_Potential_Hazard_Area, Site_Category, Other_Site_Category, Type_of_Structure__Tower__Mast_, StructureHeight, Comment_
+
+--- Columns for LASIMRA_CustomerDetails_SMO ---
+ID, CustomerId, CustomerName, OfficePhone, RCNO, OfficeAddress, ContactPersonName, ContactPersonPhoneNo, ContactPersonEmail, IsALTON, StatusId, Arrears, ContactPersonUserID, VerificationCode, IsVerified
+

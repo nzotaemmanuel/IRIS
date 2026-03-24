@@ -24,6 +24,24 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Route mount points
+const authRoutes = require('./routes/auth').default || require('./routes/auth');
+const statsRoutes = require('./routes/stats').default || require('./routes/stats');
+const permitsRoutes = require('./routes/permits').default || require('./routes/permits');
+const geoRoutes = require('./routes/geo').default || require('./routes/geo');
+const kpiRoutes = require('./routes/kpi').default || require('./routes/kpi');
+const structuresRoutes = require('./routes/structures').default || require('./routes/structures');
+const paymentsRoutes = require('./routes/payments').default || require('./routes/payments');
+
+console.log('⚡ IRIS: Mounting API Routes...');
+app.use('/api/auth', authRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/permits', permitsRoutes);
+app.use('/api/geo', geoRoutes);
+app.use('/api/kpi', kpiRoutes);
+app.use('/api/structures', structuresRoutes);
+app.use('/api/payments', paymentsRoutes);
+
 // Serve static files from the 'public' directory
 const publicPath = path.resolve(__dirname, '..', 'public');
 app.use(express.static(publicPath));
@@ -31,20 +49,9 @@ app.use(express.static(publicPath));
 // Define port (iisnode uses process.env.PORT)
 const PORT = process.env.PORT || 3000;
 
-// Import routes
-import authRoutes from './routes/auth';
-import statsRoutes from './routes/stats';
-import permitsRoutes from './routes/permits';
-import geoRoutes from './routes/geo';
-import kpiRoutes from './routes/kpi';
 import { initializeSocketEvents } from './sockets/permitEvents';
 
-// Route mount points
-app.use('/api/auth', authRoutes);
-app.use('/api/stats', statsRoutes);
-app.use('/api/permits', permitsRoutes);
-app.use('/api/geo', geoRoutes);
-app.use('/api/kpi', kpiRoutes);
+// Socket.io integration
 
 // Socket.io integration
 initializeSocketEvents(io);

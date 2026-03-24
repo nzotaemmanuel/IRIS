@@ -120,4 +120,25 @@ router.get('/lga-density', async (req, res) => {
     }
 });
 
+/**
+ * @route   GET /api/geo/lgas
+ * @desc    Get list of all LGAs for dropdowns
+ * @access  Private
+ */
+router.get('/lgas', async (req, res) => {
+    console.log('API REQ [geo lgas]');
+    try {
+        const query = `
+            SELECT ID, LGAName as name
+            FROM [SmartBoxData].[LASIMRA_LocalGovernment_SMO]
+            ORDER BY LGAName
+        `;
+        const lgas = await executeQuery(query);
+        res.json(lgas);
+    } catch (err: any) {
+        console.error('API ERROR [geo lgas]:', err);
+        res.status(500).json({ error: 'Failed to fetch LGAs', details: err.message });
+    }
+});
+
 export default router;

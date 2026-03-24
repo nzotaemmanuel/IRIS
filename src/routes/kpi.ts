@@ -34,23 +34,37 @@ router.get('/structures', async (req: any, res: any) => {
   // if (cachedData) return res.json(cachedData);
 
   try {
+    // S1: Total Structures
     const total = await executeQuery(`
-      SELECT COUNT(*) as value 
+      SELECT COUNT(r.RequestID) as value 
       FROM [SmartBoxData].[LASIMRA_Request_SMO] r
-      WHERE (r.ProcessType = 1 AND r.StatusID = 28) 
-         OR (r.ProcessType = 2 AND r.StatusID = 13)
+      INNER JOIN (
+        SELECT RequestID FROM [SmartBoxData].[LASIMRA_RowRequest_SMO]
+        UNION ALL
+        SELECT RequestID FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO]
+      ) as combined ON r.RequestID = combined.RequestID
+      ${getPeriodFilter(period, 'r.ApplicationDate') ? 'WHERE 1=1 ' + getPeriodFilter(period, 'r.ApplicationDate') : ''}
     `);
 
+    // S2: Infrastructure Distribution by Project Category & TypeOfStructure
     const distribution = await executeQuery(`
       SELECT 
-        CASE WHEN r.ProcessType = 1 THEN 'MAST'
-             WHEN r.ProcessType = 2 THEN 'RoW'
-             ELSE 'Other' END as label,
-        COUNT(*) as value
+        COALESCE(st.InfraCategory, 'Unknown') as label,
+        COUNT(r.RequestID) as value
       FROM [SmartBoxData].[LASIMRA_Request_SMO] r
-      WHERE (r.ProcessType = 1 AND r.StatusID = 28) 
-         OR (r.ProcessType = 2 AND r.StatusID = 13)
-      GROUP BY r.ProcessType
+      INNER JOIN (
+        SELECT rr.RequestID, pc.ProjectCategoryName as InfraCategory 
+        FROM [SmartBoxData].[LASIMRA_RowRequest_SMO] rr
+        LEFT JOIN [SmartBoxData].[LASIMRA_ROWProcjectCategory_SMO] pc ON rr.ProjectCategory = pc.ID
+        
+        UNION ALL
+        
+        SELECT tm.RequestID, ts.StructureTypeName as InfraCategory 
+        FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO] tm
+        LEFT JOIN [SmartBoxData].[LASIMRA_StructureType_SMO] ts ON tm.TypeOfStructure = ts.StructureTypeID
+      ) as st ON r.RequestID = st.RequestID
+      ${getPeriodFilter(period, 'r.ApplicationDate') ? 'WHERE 1=1 ' + getPeriodFilter(period, 'r.ApplicationDate') : ''}
+      GROUP BY COALESCE(st.InfraCategory, 'Unknown')
     `);
 
     const trend = await executeQuery(`

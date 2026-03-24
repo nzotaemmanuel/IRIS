@@ -1,0 +1,66 @@
+{
+  "LASIMRA_RowRequest_SMO": [],
+  "LASIMRA_TowerMastDetails_SMO": [
+    "ID (bigint)",
+    "Reference_Number (nvarchar)",
+    "Site_Address (nvarchar)",
+    "Local_Government_Area (bigint)",
+    "Site_Name__SiteID__Code_ (nvarchar)",
+    "Longtitude (nvarchar)",
+    "Latitude (nvarchar)",
+    "Elevation (nvarchar)",
+    "Load_Capacity (nvarchar)",
+    "RF_Radiation_Level (nvarchar)",
+    "Radius_of_Potential_Hazard_Area (nvarchar)",
+    "Site_Category (bigint)",
+    "Other_Site_Category (nvarchar)",
+    "Type_of_Structure__Tower__Mast_ (bigint)",
+    "StructureHeight (decimal)",
+    "Comment_ (nvarchar)"
+  ],
+  "LASIMRA_Request_SMO": [
+    "RequestID (bigint)",
+    "CustomerID (bigint)",
+    "RefNo (nvarchar)",
+    "StatusID (bigint)",
+    "RequestTitle (nvarchar)",
+    "ApplicationDate (datetime)",
+    "CommencementDate (datetime)",
+    "CreatedByName (nvarchar)",
+    "CreatedByDisplayName (nvarchar)",
+    "PDFID (bigint)",
+    "IsInstalled (bit)",
+    "ProcessType (bigint)",
+    "PermitYest (bigint)",
+    "ApprovalDate (datetime)",
+    "IsRenewed (bit)",
+    "InspectionVisitDate (date)",
+    "EngineerID (bigint)",
+    "RoWProjectName (nvarchar)",
+    "RoWProjectCategoryId (bigint)",
+    "RoWInspectionVisitDate (date)",
+    "RoWEngineerId (bigint)",
+    "WGuid (nvarchar)",
+    "Pay4it (nvarchar)"
+  ],
+  "LASIMRA_ROWProcjectCategory_SMO": [
+    "ID (bigint)",
+    "ProjectCategoryName (nvarchar)",
+    "ProjectCategoryCode (nvarchar)",
+    "FeePerMeter (bigint)",
+    "ALTONFeePerMeter (bigint)"
+  ],
+  "LASIMRA_StructureType_SMO": [
+    "StructureTypeID (bigint)",
+    "StructureTypeName (nvarchar)",
+    "StructureTypeCode (nvarchar)"
+  ],
+  "LASIMRA_LocalGovernment_SMO": [
+    "ID (bigint)",
+    "LGACode (nvarchar)",
+    "LGAName (nvarchar)",
+    "AreaOfficerName (nvarchar)",
+    "AreaOfficerEmail (nvarchar)",
+    "Active (bit)"
+  ]
+}

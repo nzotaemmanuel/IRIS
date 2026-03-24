@@ -1,0 +1,13 @@
+{
+  "tables": [
+    "LASIMRA_MAST_Consultants_Details_SMO",
+    "LASIMRA_MASTFees_SMO",
+    "LASIMRA_ROWBillGenerationTeam_SMO",
+    "LASIMRA_ROWNumberOfWays_SMO",
+    "LASIMRA_ROWProcjectCategory_SMO",
+    "LASIMRA_ROWTypsofPipes",
+    "LASIMRA_TowerMast_Reqeust_SMO",
+    "LASIMRA_TowerMast_Request_SMO",
+    "LASIMRA_TowerMastDetails_SMO"
+  ]
+}

@@ -9,18 +9,36 @@ Source of Truth: LASIMRA_IRIS Schema Discovery 2026-03-16
 
 -- S1: Total Structures (Live Count)
 -- REAL-TIME KPI
-SELECT COUNT(*) as TotalStructures 
-FROM [SmartBoxData].[LASIMRA_TowerMastDetails_SMO];
-
--- S2: Structures by Category (Distribution)
-SELECT 
-    CASE WHEN r.ProcessType = 1 THEN 'MAST'
-         WHEN r.ProcessType = 2 THEN 'RoW'
-         ELSE 'OTHER' END as Category, 
-    COUNT(*) as Count
+-- Joins: LASIMRA_Request_SMO -> LASIMRA_RowRequest_SMO AND LASIMRA_TowerMast_Reqeust_SMO
+SELECT COUNT(r.RequestID) as TotalStructures 
 FROM [SmartBoxData].[LASIMRA_Request_SMO] r
-WHERE (r.ProcessType = 1 AND r.StatusID = 28) OR (r.ProcessType = 2 AND r.StatusID = 13)
-GROUP BY r.ProcessType;
+INNER JOIN (
+    SELECT RequestID FROM [SmartBoxData].[LASIMRA_RowRequest_SMO]
+    UNION ALL
+    SELECT RequestID FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO]
+) as combined ON r.RequestID = combined.RequestID;
+
+-- S2: Infrastructure Distribution by Project Category & TypeOfStructure
+-- LGA and structure details sourced from LASIMRA_RowRequest_SMO and LASIMRA_TowerMast_Reqeust_SMO
+SELECT 
+    COALESCE(st.InfraCategory, 'Unknown') as InfraCategory,
+    lg.LGAName as LGA,
+    COUNT(r.RequestID) as Count
+FROM [SmartBoxData].[LASIMRA_Request_SMO] r
+INNER JOIN (
+    SELECT rr.RequestID, pc.ProjectCategoryName as InfraCategory, rr.LocalGovernmentArea 
+    FROM [SmartBoxData].[LASIMRA_RowRequest_SMO] rr
+    LEFT JOIN [SmartBoxData].[LASIMRA_ROWProcjectCategory_SMO] pc ON rr.ProjectCategory = pc.ID
+    
+    UNION ALL
+    
+    SELECT tm.RequestID, ts.StructureTypeName as InfraCategory, tm.LocalGovernmentArea 
+    FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO] tm
+    LEFT JOIN [SmartBoxData].[LASIMRA_StructureType_SMO] ts ON tm.TypeOfStructure = ts.StructureTypeID
+) as st ON r.RequestID = st.RequestID
+LEFT JOIN [SmartBoxData].[LASIMRA_LocalGovernment_SMO] lg ON lg.ID = st.LocalGovernmentArea
+GROUP BY COALESCE(st.InfraCategory, 'Unknown'), lg.LGAName
+ORDER BY Count DESC;
 
 -- S3: Asset Registration Rate (MTD/QTD/YTD proxy via Requests)
 -- Filters: ApplicationDate

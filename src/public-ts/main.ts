@@ -1,5 +1,7 @@
 import { initializeSocket } from './realtime.js';
 import { initializeKPIDashboard } from './kpi-loader.js';
+import { initializeStructuresLoader } from './structures-loader.js';
+import { initializePaymentsLoader } from './payments-loader.js';
 import { customFetch } from './api.js';
 
 // App State
@@ -133,6 +135,10 @@ const switchView = (viewId: string) => {
         if (section.id === `${viewId}View`) {
             section.classList.remove('hidden');
             section.classList.add('active');
+            
+            // Trigger specific loaders
+            if (viewId === 'structures') initializeStructuresLoader();
+            if (viewId === 'payments') initializePaymentsLoader();
         } else {
             section.classList.add('hidden');
             section.classList.remove('active');

@@ -1,0 +1,14 @@
+{
+  "lga_cols": [
+    "LASIMRA_LocalGovernment_SMO.LGACode",
+    "LASIMRA_LocalGovernment_SMO.LGAName",
+    "LASIMRA_SurvillanceRequest_SMO.LGAID",
+    "LASIMRA_TowerMast_Request_SMO.LocalGovernmentArea_"
+  ],
+  "pc_cols": [
+    "LASIMRA_Request_SMO.RoWProjectCategoryId",
+    "LASIMRA_ROWBillGenerationTeam_SMO.ProjectCategoryID",
+    "LASIMRA_ROWProcjectCategory_SMO.ProjectCategoryCode",
+    "LASIMRA_ROWProcjectCategory_SMO.ProjectCategoryName"
+  ]
+}
