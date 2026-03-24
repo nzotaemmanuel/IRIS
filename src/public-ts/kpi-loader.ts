@@ -33,7 +33,17 @@ const updateKPIWidget = (domain: string, data: any) => {
     // Render Associated Chart if exists
     switch (domain) {
         case 'structures': {
-            const distribution: any[] = data.distribution || [];
+            let distribution: any[] = data.distribution || [];
+            
+            // Ensure primary categories are always visible
+            const categories = ['Mast', 'Tower', 'RoW', 'Small Cell'];
+            const existing = distribution.map(d => d.label || d.type);
+            categories.forEach(cat => {
+                if (!existing.includes(cat)) {
+                    distribution.push({ label: cat, value: 0 });
+                }
+            });
+
             renderDomainChart(domain, 'bar', distribution, 'chart-structures');
 
             // Wire up filter dropdown
@@ -52,9 +62,21 @@ const updateKPIWidget = (domain: string, data: any) => {
             }
             break;
         }
-        case 'payments':
-            renderDomainChart(domain, 'bar', data.byChannel, 'chart-payments');
+        case 'payments': {
+            let byChannel: any[] = data.byChannel || [];
+            
+            // Ensure common channels are always visible
+            const channels = ['Pay4it', 'WebPay', 'Direct', 'POS'];
+            const existing = byChannel.map(d => d.label || d.Mode);
+            channels.forEach(ch => {
+                if (!existing.includes(ch)) {
+                    byChannel.push({ label: ch, value: 0 });
+                }
+            });
+
+            renderDomainChart(domain, 'bar', byChannel, 'chart-payments');
             break;
+        }
         case 'requests': {
             const pipeline: any[] = data.pipeline || [];
             renderDomainChart(domain, 'horizontalBar', pipeline, 'chart-requests');

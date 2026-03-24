@@ -35,29 +35,19 @@ export const initializePaymentsLoader = async () => {
 const setupEventListeners = () => {
     const searchInput = document.getElementById('payments-search') as HTMLInputElement;
     const lgaFilter = document.getElementById('payments-lga-filter') as HTMLSelectElement;
-    const startDate = document.getElementById('payments-start-date') as HTMLInputElement;
-    const endDate = document.getElementById('payments-end-date') as HTMLInputElement;
+    const periodFilter = document.getElementById('payments-period-filter') as HTMLSelectElement;
     const periodSelector = document.getElementById('payments-trend-period') as HTMLSelectElement;
 
     const handleChange = () => {
         const filters = {
             lgaId: lgaFilter.value,
-            startDate: startDate.value,
-            endDate: endDate.value
+            period: periodFilter.value,
+            trendPeriod: periodSelector.value
         };
         console.log('Filters changed:', filters);
-        loadPayments(filters);
-        loadPaymentTrend({ ...filters, period: periodSelector.value });
+        loadPayments({ lgaId: filters.lgaId, period: filters.period });
+        loadPaymentTrend(filters);
     };
-
-    periodSelector?.addEventListener('change', () => {
-        loadPaymentTrend({
-            lgaId: lgaFilter.value,
-            startDate: startDate.value,
-            endDate: endDate.value,
-            period: periodSelector.value
-        });
-    });
 
     if (searchInput) {
         searchInput.addEventListener('input', (e: any) => {
@@ -67,8 +57,8 @@ const setupEventListeners = () => {
     }
 
     lgaFilter?.addEventListener('change', handleChange);
-    startDate?.addEventListener('change', handleChange);
-    endDate?.addEventListener('change', handleChange);
+    periodSelector?.addEventListener('change', handleChange);
+    periodFilter?.addEventListener('change', handleChange);
 };
 
 /**
@@ -150,20 +140,121 @@ const loadPaymentTrend = async (filters: any = {}) => {
 
     try {
         const response = await customFetch(`/api/payments/trend?${queryParams.toString()}`);
-        const data = await response.json();
+        const apiData = await response.json();
         
-        renderTrendChart(canvas, data);
+        // Always ensure a complete timeframe (fill gaps in the series)
+        const filledData = fillDataGaps(apiData, filters.period || 'all', filters.trendPeriod || 'day');
+
+        // Pass 'isEmpty' flag to show overlay if no ACTUAL data exists
+        renderTrendChart(canvas, filledData, apiData.length === 0);
     } catch (err) {
         console.error('Failed to load trend data:', err);
     }
 };
 
 /**
+ * Fills gaps in the trend data to ensure a continuous and complete timeframe
+ */
+const fillDataGaps = (apiData: any[], period: string, trendPeriod: string): any[] => {
+    const dataMap = new Map();
+    apiData.forEach(d => dataMap.set(d.label, d.value));
+
+    const filled: any[] = [];
+    const now = new Date();
+    
+    if (trendPeriod === 'month') {
+        // Special case: "All Time" with Monthly trend shows the full current year Jan-Dec
+        const currentYear = now.getFullYear();
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        months.forEach((month, index) => {
+            const label = `${currentYear}-${String(index + 1).padStart(2, '0')}`;
+            filled.push({
+                label: label, // for internal formatting logic
+                displayLabel: month, // for the chart axis
+                value: dataMap.get(label) || 0
+            });
+        });
+        return filled;
+    }
+
+    if (period === '24h') {
+        for (let i = 23; i >= 0; i--) {
+            const d = new Date(now.getTime() - i * 60 * 60 * 1000);
+            const iso = d.toISOString();
+            const hour = d.getHours();
+            filled.push({ 
+                label: iso, 
+                displayLabel: `${String(hour).padStart(2, '0')}:00`,
+                value: dataMap.get(iso) || 0 
+            });
+        }
+    } else if (period === '7d' || (period === 'all' && trendPeriod === 'day')) {
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+            const iso = d.toISOString();
+            const weekday = d.toLocaleDateString('en-GB', { weekday: 'short' });
+            filled.push({ 
+                label: iso, 
+                displayLabel: weekday,
+                value: dataMap.get(iso) || 0 
+            });
+        }
+    } else if (period === '30d') {
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+            const iso = d.toISOString();
+            const label = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            // Reformat "24 Feb" to "Feb 24" (or just use the string)
+            const parts = label.split(' '); // [24, Feb]
+            const displayLabel = `${parts[1]} ${parts[0]}`;
+            
+            filled.push({ 
+                label: iso, 
+                displayLabel: displayLabel,
+                value: dataMap.get(iso) || 0 
+            });
+        }
+    } else {
+        // Default to original data if no skeleton matches
+        return apiData;
+    }
+    
+    return filled;
+};
+
+/**
+ * Helper to show/hide "No Data" overlay on chart
+ */
+const updateChartOverlay = (containerId: string, show: boolean) => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    let overlay = container.querySelector('.chart-no-data-overlay');
+    if (show) {
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'chart-no-data-overlay';
+            overlay.innerHTML = `
+                <h4>NO AVAILABLE DATA</h4>
+                <p>No revenue events recorded for this period</p>
+            `;
+            container.appendChild(overlay);
+        }
+    } else {
+        if (overlay) overlay.remove();
+    }
+};
+
+/**
  * Render Chart.js Trend Analytics
  */
-const renderTrendChart = (canvas: HTMLCanvasElement, data: any[]) => {
+const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boolean = false) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Handle overlay
+    updateChartOverlay('trend-chart-container', isEmpty);
 
     // Use global Chart if available
     const ChartLib = (window as any).Chart || Chart;
@@ -196,8 +287,15 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[]) => {
         type: 'line',
         data: {
             labels: data.map(d => {
-                if (period === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                if (period === 'month') return d.label; // yyyy-MM
+                // If a explicit displayLabel exists (from skeleton), use it
+                if (d.displayLabel) return d.displayLabel;
+
+                if (period === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                if (period === 'month') {
+                    // Handle yyyy-MM
+                    const date = new Date(d.label + '-01');
+                    return date.toLocaleDateString('en-GB', { month: 'short' });
+                }
                 if (period === 'week') return d.label; // yyyy-Wxx
                 return d.label; // yyyy
             }),

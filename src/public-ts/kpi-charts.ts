@@ -88,6 +88,7 @@ export const renderDomainChart = (domain: string, type: string, data: any[], con
             },
             scales: type === 'doughnut' ? {} : {
                 y: { 
+                    suggestedMax: 10,
                     grid: {
                         color: theme.grid.color,
                         drawBorder: false,

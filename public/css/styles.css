@@ -880,3 +880,85 @@ input:focus {
 /* Analytics Utilities */
 .mb-20 { margin-bottom: 20px; }
 .text-primary { color: var(--primary) !important; }
+
+/* Period Selector Enhancement */
+.period-selector-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.premium-select-alt {
+    background: var(--bg-surface-elevated);
+    border: 2px solid var(--success);
+    color: var(--text-main);
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    min-width: 180px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.2rem;
+}
+
+.premium-select-alt:focus {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+    border-color: var(--success);
+}
+
+.premium-select-alt option {
+    background: var(--bg-sidebar);
+    color: var(--text-main);
+    padding: 10px;
+}
+
+/* Chart Overlays */
+.chart-container-wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.chart-no-data-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    pointer-events: none;
+    border-left: 4px solid var(--accent-cyan);
+    min-width: 280px;
+}
+
+.chart-no-data-overlay h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.chart-no-data-overlay p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+[data-theme="light"] .chart-no-data-overlay {
+    background: #ffffff;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}

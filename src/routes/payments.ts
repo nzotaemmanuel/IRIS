@@ -14,8 +14,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 50;
     const lgaId = req.query.lgaId as string;
-    const startDate = req.query.startDate as string;
-    const endDate = req.query.endDate as string;
+    const period = req.query.period as string || 'all';
     
     // Build parameters for the query
     const params: any = { limit };
@@ -25,13 +24,13 @@ router.get('/', async (req: Request, res: Response) => {
       filterSql += ' AND tr.LocalGovernmentArea_ = @lgaId';
       params.lgaId = lgaId;
     }
-    if (startDate) {
-      filterSql += ' AND p.TimeStamp >= @startDate';
-      params.startDate = startDate;
-    }
-    if (endDate) {
-      filterSql += ' AND p.TimeStamp <= @endDate';
-      params.endDate = endDate;
+
+    if (period === '24h') {
+      filterSql += ' AND p.TimeStamp >= DATEADD(hour, -24, GETDATE())';
+    } else if (period === '7d') {
+      filterSql += ' AND p.TimeStamp >= DATEADD(day, -7, GETDATE())';
+    } else if (period === '30d') {
+      filterSql += ' AND p.TimeStamp >= DATEADD(day, -30, GETDATE())';
     }
 
     const payments = await executeQuery(`
@@ -83,8 +82,8 @@ router.get('/trend', async (req: Request, res: Response) => {
   console.log('API REQ [payments trend]:', req.query);
   try {
     const lgaId = req.query.lgaId as string;
-    const startDate = req.query.startDate as string;
-    const endDate = req.query.endDate as string;
+    const period = req.query.period as string || 'all';
+    const trendPeriod = req.query.trendPeriod as string || 'day';
 
     const params: any = {};
     let filterSql = ' WHERE AmountPaid > 0';
@@ -93,26 +92,25 @@ router.get('/trend', async (req: Request, res: Response) => {
       filterSql += ' AND tr.LocalGovernmentArea_ = @lgaId';
       params.lgaId = lgaId;
     }
-    if (startDate) {
-      filterSql += ' AND p.TimeStamp >= @startDate';
-      params.startDate = startDate;
-    }
-    if (endDate) {
-      filterSql += ' AND p.TimeStamp <= @endDate';
-      params.endDate = endDate;
+
+    if (period === '24h') {
+      filterSql += ' AND p.TimeStamp >= DATEADD(hour, -24, GETDATE())';
+    } else if (period === '7d') {
+      filterSql += ' AND p.TimeStamp >= DATEADD(day, -7, GETDATE())';
+    } else if (period === '30d') {
+      filterSql += ' AND p.TimeStamp >= DATEADD(day, -30, GETDATE())';
     }
 
-    const period = req.query.period as string || 'day';
     let labelSql = 'CAST(p.TimeStamp AS DATE)';
     let groupSql = 'CAST(p.TimeStamp AS DATE)';
     
-    if (period === 'week') {
+    if (trendPeriod === 'week') {
       labelSql = "CONCAT(YEAR(p.TimeStamp), '-W', DATEPART(WEEK, p.TimeStamp))";
       groupSql = "CONCAT(YEAR(p.TimeStamp), '-W', DATEPART(WEEK, p.TimeStamp))";
-    } else if (period === 'month') {
+    } else if (trendPeriod === 'month') {
       labelSql = "FORMAT(p.TimeStamp, 'yyyy-MM')";
       groupSql = "FORMAT(p.TimeStamp, 'yyyy-MM')";
-    } else if (period === 'year') {
+    } else if (trendPeriod === 'year') {
       labelSql = "CAST(YEAR(p.TimeStamp) AS VARCHAR)";
       groupSql = "YEAR(p.TimeStamp)";
     }
