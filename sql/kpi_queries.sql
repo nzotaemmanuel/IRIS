@@ -129,13 +129,15 @@ FROM (
 SELECT SUM(AmountPaid) as TotalRevenue 
 FROM [SmartBoxData].[LASIMRA_Payment_SMO];
 
--- PM2: Revenue by Channel (PaymentMode)
+-- PM2: Revenue by Channel
+-- PaymentMode mapping (e.g. Manual vs Interswitch)
 SELECT 
-    PaymentMode,
-    SUM(AmountPaid) as Revenue
+    PaymentMode as RevenueChannel, 
+    COALESCE(SUM(AmountPaid), 0) as TotalRevenue
 FROM [SmartBoxData].[LASIMRA_Payment_SMO]
-WHERE AmountPaid > 0
-GROUP BY PaymentMode;
+WHERE PaymentMode IS NOT NULL AND PaymentMode != ''
+GROUP BY PaymentMode
+ORDER BY TotalRevenue DESC;
 
 -- PM3: Payment Success Rate
 SELECT 

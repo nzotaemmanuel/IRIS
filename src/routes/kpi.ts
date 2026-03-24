@@ -169,12 +169,14 @@ router.get('/payments', async (req: any, res: any) => {
   try {
     const total = await executeQuery(`SELECT SUM(AmountPaid) as value FROM [SmartBoxData].[LASIMRA_Payment_SMO] WHERE 1=1 ${getPeriodFilter(period, 'TimeStamp')}`);
 
+    // PM2: Revenue by Channel
     const byChannel = await executeQuery(`
-      SELECT PaymentMode as label, SUM(AmountPaid) as value
+      SELECT PaymentMode as label, COALESCE(SUM(AmountPaid), 0) as value
       FROM [SmartBoxData].[LASIMRA_Payment_SMO]
-      WHERE AmountPaid > 0
+      WHERE PaymentMode IS NOT NULL AND PaymentMode != ''
       ${getPeriodFilter(period, 'TimeStamp')}
       GROUP BY PaymentMode
+      ORDER BY value DESC
     `);
 
     const result = {
