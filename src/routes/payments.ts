@@ -108,10 +108,10 @@ router.get('/trend', async (req: Request, res: Response) => {
     
     if (period === 'week') {
       labelSql = "CONCAT(YEAR(p.TimeStamp), '-W', DATEPART(WEEK, p.TimeStamp))";
-      groupSql = "YEAR(p.TimeStamp), DATEPART(WEEK, p.TimeStamp)";
+      groupSql = "CONCAT(YEAR(p.TimeStamp), '-W', DATEPART(WEEK, p.TimeStamp))";
     } else if (period === 'month') {
       labelSql = "FORMAT(p.TimeStamp, 'yyyy-MM')";
-      groupSql = "YEAR(p.TimeStamp), MONTH(p.TimeStamp)";
+      groupSql = "FORMAT(p.TimeStamp, 'yyyy-MM')";
     } else if (period === 'year') {
       labelSql = "CAST(YEAR(p.TimeStamp) AS VARCHAR)";
       groupSql = "YEAR(p.TimeStamp)";
