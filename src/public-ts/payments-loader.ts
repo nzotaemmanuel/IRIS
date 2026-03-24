@@ -196,7 +196,7 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[]) => {
         type: 'line',
         data: {
             labels: data.map(d => {
-                if (period === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                if (period === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                 if (period === 'month') return d.label; // yyyy-MM
                 if (period === 'week') return d.label; // yyyy-Wxx
                 return d.label; // yyyy
