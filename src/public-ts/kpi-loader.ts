@@ -32,9 +32,26 @@ const updateKPIWidget = (domain: string, data: any) => {
 
     // Render Associated Chart if exists
     switch (domain) {
-        case 'structures':
-            renderDomainChart(domain, 'bar', data.distribution, 'chart-structures');
+        case 'structures': {
+            const distribution: any[] = data.distribution || [];
+            renderDomainChart(domain, 'bar', distribution, 'chart-structures');
+
+            // Wire up filter dropdown
+            const structFilter = document.getElementById('structures-filter') as HTMLSelectElement;
+            if (structFilter) {
+                // Remove old listener to prevent duplicates
+                const newFilter = structFilter.cloneNode(true) as HTMLSelectElement;
+                structFilter.parentNode!.replaceChild(newFilter, structFilter);
+                newFilter.addEventListener('change', () => {
+                    const type = newFilter.value;
+                    const filtered = type === 'all' 
+                        ? distribution 
+                        : distribution.filter(d => d.type === type);
+                    renderDomainChart(domain, 'bar', filtered, 'chart-structures');
+                });
+            }
             break;
+        }
         case 'payments':
             renderDomainChart(domain, 'bar', data.byChannel, 'chart-payments');
             break;

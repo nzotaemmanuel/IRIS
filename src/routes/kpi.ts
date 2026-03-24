@@ -50,21 +50,22 @@ router.get('/structures', async (req: any, res: any) => {
     const distribution = await executeQuery(`
       SELECT 
         COALESCE(st.InfraCategory, 'Unknown') as label,
+        st.Type as type,
         COUNT(r.RequestID) as value
       FROM [SmartBoxData].[LASIMRA_Request_SMO] r
       INNER JOIN (
-        SELECT rr.RequestID, pc.ProjectCategoryName as InfraCategory 
+        SELECT rr.RequestID, pc.ProjectCategoryName as InfraCategory, 'row' as Type 
         FROM [SmartBoxData].[LASIMRA_RowRequest_SMO] rr
         LEFT JOIN [SmartBoxData].[LASIMRA_ROWProcjectCategory_SMO] pc ON rr.ProjectCategory = pc.ID
         
         UNION ALL
         
-        SELECT tm.RequestID, ts.StructureTypeName as InfraCategory 
+        SELECT tm.RequestID, ts.StructureTypeName as InfraCategory, 'mast' as Type 
         FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO] tm
         LEFT JOIN [SmartBoxData].[LASIMRA_StructureType_SMO] ts ON tm.TypeOfStructure = ts.StructureTypeID
       ) as st ON r.RequestID = st.RequestID
       ${getPeriodFilter(period, 'r.ApplicationDate') ? 'WHERE 1=1 ' + getPeriodFilter(period, 'r.ApplicationDate') : ''}
-      GROUP BY COALESCE(st.InfraCategory, 'Unknown')
+      GROUP BY COALESCE(st.InfraCategory, 'Unknown'), st.Type
     `);
 
     const trend = await executeQuery(`

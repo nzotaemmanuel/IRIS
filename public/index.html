@@ -197,8 +197,13 @@
                 <!-- Charts Area (Expandable) -->
                 <div class="chart-grid">
                     <div class="card chart-card">
-                        <div class="card-header">
+                        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
                             <h3>Infrastructure Distribution</h3>
+                            <select id="structures-filter" style="width:130px; padding:0.35rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-main); font-size:0.8rem; outline:none; cursor:pointer;">
+                                <option value="all">All Structures</option>
+                                <option value="row">RoW</option>
+                                <option value="mast">Tower/Mast</option>
+                            </select>
                         </div>
                         <div class="card-body">
                             <canvas id="chart-structures"></canvas>
