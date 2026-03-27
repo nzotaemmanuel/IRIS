@@ -165,16 +165,20 @@ const loadPaymentTrend = async (filters: any = {}) => {
  * Fills gaps in the trend data to ensure a continuous and complete timeframe
  */
 const fillDataGaps = (apiData: any[], period: string, trendPeriod: string): any[] => {
-    // Build lookup map normalising all keys to the relevant prefix so that
-    // full ISO timestamps ("2024-01-15T00:00:00.000Z") and plain date strings
-    // ("2024-01-15") both resolve correctly.
+    // Build lookup map keyed by the canonical label format for each trendPeriod:
+    //   day   → backend returns DATE → may serialise as "yyyy-MM-ddT00:00:00.000Z"; normalise to first 10 chars
+    //   month → backend returns FORMAT(…,'yyyy-MM'); keep first 7 chars
+    //   week  → backend returns "yyyy-Wnn" strings; use as-is
+    //   year  → backend returns plain year strings ("2024"); use as-is
     const dataMap = new Map();
     if (trendPeriod === 'month') {
-        // Backend returns 'yyyy-MM' strings via FORMAT()
         apiData.forEach(d => dataMap.set(String(d.label).substring(0, 7), d.value));
-    } else {
-        // Backend returns DATE values which serialise to "yyyy-MM-ddT…"; normalise to "yyyy-MM-dd"
+    } else if (trendPeriod === 'day') {
+        // DATE values from mssql may carry a time component; strip it to get "yyyy-MM-dd"
         apiData.forEach(d => dataMap.set(String(d.label).substring(0, 10), d.value));
+    } else {
+        // week ("yyyy-Wnn") and year ("yyyy") labels are already plain strings
+        apiData.forEach(d => dataMap.set(String(d.label), d.value));
     }
 
     const filled: any[] = [];
