@@ -51,11 +51,12 @@ const setupEventListeners = () => {
 
         const filters = {
             lgaId: lgaFilter.value,
+            q: searchInput ? searchInput.value : '',
             period: period,
             trendPeriod: trendPeriod
         };
         console.log('Filters changed (Auto-Granularity):', filters);
-        loadPayments({ lgaId: filters.lgaId, period: filters.period });
+        loadPayments({ lgaId: filters.lgaId, period: filters.period, q: filters.q });
         loadPaymentTrend(filters);
     };
 
@@ -63,6 +64,11 @@ const setupEventListeners = () => {
         searchInput.addEventListener('input', (e: any) => {
             const term = e.target.value.toLowerCase();
             filterPayments(term);
+            // update list and trend to reflect search term as well
+            const period = periodFilter.value;
+            const trendPeriod = period === 'all' ? 'month' : 'day';
+            loadPayments({ lgaId: lgaFilter.value, period: period, q: term });
+            loadPaymentTrend({ lgaId: lgaFilter.value, period: period, trendPeriod: trendPeriod, q: term });
         });
     }
 
@@ -149,13 +155,17 @@ const loadPaymentTrend = async (filters: any = {}) => {
 
     try {
         const response = await customFetch(`/api/payments/trend?${queryParams.toString()}`);
-        const apiData = await response.json();
-        
-        // Always ensure a complete timeframe (fill gaps in the series)
-        const filledData = fillDataGaps(apiData, filters.period || 'all', filters.trendPeriod || 'day');
+        const apiResp = await response.json();
 
-        // Pass 'isEmpty' flag and 'trendPeriod' to renderTrendChart
-        renderTrendChart(canvas, filledData, apiData.length === 0, filters.trendPeriod || 'day');
+        // apiResp may be either an array or an object { data, trendPeriod }
+        let trendData: any[] = Array.isArray(apiResp) ? apiResp : (apiResp.data || []);
+        const actualTrendPeriod = (apiResp && apiResp.trendPeriod) ? apiResp.trendPeriod : (filters.trendPeriod || 'day');
+
+        // Always ensure a complete timeframe (fill gaps in the series)
+        const filledData = fillDataGaps(trendData, filters.period || 'all', actualTrendPeriod);
+
+        // Pass 'isEmpty' flag and the effective 'trendPeriod' to renderTrendChart
+        renderTrendChart(canvas, filledData, (trendData?.length || 0) === 0, actualTrendPeriod);
     } catch (err) {
         console.error('Failed to load trend data:', err);
     }
