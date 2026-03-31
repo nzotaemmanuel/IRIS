@@ -151,11 +151,15 @@ const loadPaymentTrend = async (filters: any = {}) => {
         const response = await customFetch(`/api/payments/trend?${queryParams.toString()}`);
         const apiData = await response.json();
         
+        // Determine trendPeriod based on period: All Time -> Monthly, others -> Daily
+        const period = filters.period || 'all';
+        const trendPeriod = filters.trendPeriod || (period === 'all' ? 'month' : 'day');
+        
         // Always ensure a complete timeframe (fill gaps in the series)
-        const filledData = fillDataGaps(apiData, filters.period || 'all', filters.trendPeriod || 'day');
+        const filledData = fillDataGaps(apiData, period, trendPeriod);
 
         // Pass 'isEmpty' flag and 'trendPeriod' to renderTrendChart
-        renderTrendChart(canvas, filledData, apiData.length === 0, filters.trendPeriod || 'day');
+        renderTrendChart(canvas, filledData, apiData.length === 0, trendPeriod);
     } catch (err) {
         console.error('Failed to load trend data:', err);
     }
