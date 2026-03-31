@@ -154,6 +154,16 @@ const loadPaymentTrend = async (filters: any = {}) => {
         trendPeriod = period === 'all' ? 'month' : 'day';
     }
 
+    // Force all-time to month (defensive guard for external overrides)
+    if (period === 'all') {
+        trendPeriod = 'month';
+    }
+
+    // Force relative ranges to day granularity
+    if (period === '24h' || period === '7d' || period === '30d') {
+        trendPeriod = 'day';
+    }
+
     // Create query params with explicit trendPeriod to ensure backend consistency
     const queryParams = new URLSearchParams({
         ...filters,
@@ -252,10 +262,10 @@ const fillDataGaps = (apiData: any[], period: string, trendPeriod: string): any[
         for (let i = 6; i >= 0; i--) {
             const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
             const dateStr = d.toISOString().split('T')[0]; // "yyyy-MM-dd"
-            const weekday = d.toLocaleDateString('en-GB', { weekday: 'short' });
+            const displayDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             filled.push({ 
                 label: dateStr, 
-                displayLabel: weekday,
+                displayLabel: displayDate,
                 value: dataMap.get(dateStr) || 0 
             });
         }
@@ -366,22 +376,19 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
     console.log('Chart data values:', dataValues.slice(0, 5), '... (showing first 5)');
 
     trendChart = new ChartLib(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
                 label: 'Payment Amount',
                 data: dataValues,
-                borderColor: primaryColor,
-                backgroundColor: gradient,
-                fill: true,
-                tension: 0.4,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: primaryColor,
-                pointBorderColor: isDark ? '#020617' : '#fff',
-                pointBorderWidth: 2
+                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.85)' : 'rgba(99, 102, 241, 0.75)',
+                borderColor: 'rgba(99, 102, 241, 1)',
+                borderWidth: 1,
+                borderRadius: 5,
+                barPercentage: 0.75,
+                categoryPercentage: 0.85,
+                maxBarThickness: 40
             }]
         },
         options: {
@@ -427,10 +434,19 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
                     }
                 },
                 x: {
+                    type: 'category',
                     grid: { display: false },
                     ticks: { 
                         color: isDark ? '#94a3b8' : '#475569',
-                        font: { family: 'Inter', size: 11 }
+                        font: { family: 'Inter', size: 11 },
+                        maxRotation: 0,
+                        minRotation: 0,
+                        autoSkip: true,
+                        autoSkipPadding: 8,
+                        callback: (value: any) => {
+                            if (typeof value === 'string') return value;
+                            return labels[value as number];
+                        }
                     }
                 }
             }
