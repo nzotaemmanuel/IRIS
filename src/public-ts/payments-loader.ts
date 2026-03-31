@@ -145,15 +145,25 @@ const loadPaymentTrend = async (filters: any = {}) => {
     const canvas = document.getElementById('paymentTrendChart') as HTMLCanvasElement;
     if (!canvas) return;
 
-    const queryParams = new URLSearchParams(filters);
+    // Use provided trendPeriod or calculate based on period to ensure consistency
+    const period = filters.period || 'all';
+    let trendPeriod = filters.trendPeriod;
+    
+    // If trendPeriod not explicitly provided, calculate it consistently
+    if (!trendPeriod) {
+        trendPeriod = period === 'all' ? 'month' : 'day';
+    }
+
+    // Create query params with explicit trendPeriod to ensure backend consistency
+    const queryParams = new URLSearchParams({
+        ...filters,
+        period: period,
+        trendPeriod: trendPeriod
+    });
 
     try {
         const response = await customFetch(`/api/payments/trend?${queryParams.toString()}`);
         const apiData = await response.json();
-        
-        // Determine trendPeriod based on period: All Time -> Monthly, others -> Daily
-        const period = filters.period || 'all';
-        const trendPeriod = filters.trendPeriod || (period === 'all' ? 'month' : 'day');
         
         // Always ensure a complete timeframe (fill gaps in the series)
         const filledData = fillDataGaps(apiData, period, trendPeriod);
@@ -184,6 +194,8 @@ const fillDataGaps = (apiData: any[], period: string, trendPeriod: string): any[
         // week ("yyyy-Wnn") and year ("yyyy") labels are already plain strings
         apiData.forEach(d => dataMap.set(String(d.label), d.value));
     }
+
+    console.log(`fillDataGaps: period=${period}, trendPeriod=${trendPeriod}, apiData.length=${apiData.length}, dataMap.size=${dataMap.size}`);
 
     const filled: any[] = [];
     const now = new Date();
@@ -310,14 +322,20 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
         return;
     }
 
+    // Destroy previous chart instance to prevent flickering
     if (trendChart) {
         trendChart.destroy();
+        trendChart = null;
     }
 
     if (!data || data.length === 0) {
         // Draw "No Data" message on canvas if needed
+        console.warn('No data available for chart rendering');
         return;
     }
+
+    // Log for debugging
+    console.log('Rendering chart with trendPeriod:', trendPeriod, 'data points:', data.length);
 
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     const isDark = !isLight;
@@ -327,25 +345,33 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
     gradient.addColorStop(0, isDark ? 'rgba(99, 102, 241, 0.4)' : 'rgba(99, 102, 241, 0.2)');
     gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
+    // Prepare labels consistently using displayLabel from skeleton data
+    const labels = data.map(d => {
+        if (d.displayLabel) return d.displayLabel;
+        
+        // Fallback label generation (should rarely happen with filled data)
+        if (trendPeriod === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+        if (trendPeriod === 'month') {
+            const date = new Date(d.label + '-01');
+            return date.toLocaleDateString('en-GB', { month: 'short' });
+        }
+        if (trendPeriod === 'week') return d.label;
+        return d.label;
+    });
+
+    // Extract data values
+    const dataValues = data.map(d => d.value || 0);
+    
+    console.log('Chart labels:', labels.slice(0, 5), '... (showing first 5)');
+    console.log('Chart data values:', dataValues.slice(0, 5), '... (showing first 5)');
+
     trendChart = new ChartLib(ctx, {
         type: 'line',
         data: {
-            labels: data.map(d => {
-                // If a explicit displayLabel exists (from skeleton), use it
-                if (d.displayLabel) return d.displayLabel;
-
-                if (trendPeriod === 'day') return new Date(d.label).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-                if (trendPeriod === 'month') {
-                    // Handle yyyy-MM
-                    const date = new Date(d.label + '-01');
-                    return date.toLocaleDateString('en-GB', { month: 'short' });
-                }
-                if (trendPeriod === 'week') return d.label; // yyyy-Wxx
-                return d.label; // yyyy
-            }),
+            labels: labels,
             datasets: [{
                 label: 'Payment Amount',
-                data: data.map(d => d.value),
+                data: dataValues,
                 borderColor: primaryColor,
                 backgroundColor: gradient,
                 fill: true,
@@ -361,6 +387,9 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 0  // Disable animation to prevent flickering
+            },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -407,6 +436,8 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
             }
         }
     });
+
+    console.log('Chart rendered successfully');
 };
 
 /**
