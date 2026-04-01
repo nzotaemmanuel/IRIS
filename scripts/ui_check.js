@@ -19,9 +19,30 @@ const puppeteer = require('puppeteer');
     // Ensure screenshots directory exists
     if (!fs.existsSync('screenshots')) fs.mkdirSync('screenshots');
 
-    // Open payments view
-    await page.goto('http://localhost:3000/payments', { waitUntil: 'networkidle2' });
-    await page.waitForSelector('#paymentTrendChart', { timeout: 5000 });
+    // Open root to perform login, then navigate to payments
+    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle2' });
+    // Wait for login form
+    await page.waitForSelector('#loginForm', { timeout: 8000 });
+
+    // Fill credentials and submit (test account provided)
+    await page.type('#email', 'nzotaemmanuel16@gmail.com', { delay: 30 });
+    await page.type('#password', 'Admin@lasimra123', { delay: 30 });
+    await Promise.all([
+      page.click('#loginForm button[type="submit"]'),
+      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 8000 }).catch(() => {})
+    ]);
+
+    // Wait until app wrapper is visible
+    await page.waitForFunction(() => {
+      const el = document.getElementById('appWrapper');
+      return el && !el.classList.contains('hidden');
+    }, { timeout: 8000 });
+
+    // Activate Payments view via nav (SPA switchView triggers loader)
+    await page.click('.nav-item[data-view="payments"]');
+    await page.waitForSelector('#paymentTrendChart', { timeout: 10000 });
+    // Give the payments loader some extra time to fetch and render the chart
+    await new Promise(r => setTimeout(r, 1500));
 
     // Select All Time and capture (longer wait to allow Chart.js to render)
     await page.select('#payments-period-filter', 'all');
@@ -88,16 +109,21 @@ const puppeteer = require('puppeteer');
       }
     });
 
-    await browser.close();
-
     // Persist debug info and labels
     fs.writeFileSync('screenshots/page_debug_all.json', JSON.stringify(pageDebugAll, null, 2));
     fs.writeFileSync('screenshots/page_debug_7d.json', JSON.stringify(pageDebug7d, null, 2));
+    const findChartLabels = (debug) => {
+      try {
+        if (debug && Array.isArray(debug.canvasChecks)) {
+          const entry = debug.canvasChecks.find(c => c.id === 'paymentTrendChart');
+          return entry && entry.labels ? entry.labels : '';
+        }
+      } catch (e) {}
+      return '';
+    };
 
-    const allLabels = pageDebugAll.labels || '';
-    const sevenLabels = pageDebug7d.labels || '';
-
-    await browser.close();
+    const allLabels = findChartLabels(pageDebugAll);
+    const sevenLabels = findChartLabels(pageDebug7d);
 
     const result = { all: allLabels, seven: sevenLabels };
     fs.writeFileSync('screenshots/labels.json', JSON.stringify(result, null, 2));

@@ -29,8 +29,8 @@
     {
       "idx": 4,
       "id": "paymentTrendChart",
-      "hasInstance": false,
-      "labels": ""
+      "hasInstance": true,
+      "labels": "[\"Thu\",\"Fri\",\"Sat\",\"Sun\",\"Mon\",\"Tue\",\"Wed\"]"
     }
   ]
 }

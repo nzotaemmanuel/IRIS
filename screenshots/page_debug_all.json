@@ -29,8 +29,8 @@
     {
       "idx": 4,
       "id": "paymentTrendChart",
-      "hasInstance": false,
-      "labels": ""
+      "hasInstance": true,
+      "labels": "[\"Jan\",\"Feb\",\"Mar\",\"Apr\",\"May\",\"Jun\",\"Jul\",\"Aug\",\"Sep\",\"Oct\",\"Nov\",\"Dec\"]"
     }
   ]
 }

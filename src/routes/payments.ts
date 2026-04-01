@@ -31,6 +31,8 @@ router.get('/', async (req: Request, res: Response) => {
       filterSql += ' AND p.TimeStamp >= DATEADD(day, -7, GETDATE())';
     } else if (period === '30d') {
       filterSql += ' AND p.TimeStamp >= DATEADD(day, -30, GETDATE())';
+    } else if (period === 'year') {
+      filterSql += ' AND YEAR(p.TimeStamp) = YEAR(GETDATE())';
     }
 
     const payments = await executeQuery(`
@@ -99,6 +101,8 @@ router.get('/trend', async (req: Request, res: Response) => {
       filterSql += ' AND p.TimeStamp >= DATEADD(day, -7, GETDATE())';
     } else if (period === '30d') {
       filterSql += ' AND p.TimeStamp >= DATEADD(day, -30, GETDATE())';
+    } else if (period === 'year') {
+      filterSql += ' AND YEAR(p.TimeStamp) = YEAR(GETDATE())';
     }
 
     let labelSql = 'CAST(p.TimeStamp AS DATE)';

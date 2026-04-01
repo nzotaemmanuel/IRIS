@@ -93,6 +93,7 @@ router.get('/lga-density', async (req, res) => {
             FROM [SmartBoxData].[LASIMRA_Request_SMO] r
             JOIN [SmartBoxData].[LASIMRA_SurvillanceRequest_SMO] sur ON r.RequestID = sur.RequestID
             JOIN [SmartBoxData].[LASIMRA_LocalGovernment_SMO] l ON sur.LGAID = l.LGACode
+            WHERE l.LGAName NOT IN ('Institution', 'Mobile')
             GROUP BY l.LGAName
         `;
 
@@ -131,6 +132,7 @@ router.get('/lgas', async (req, res) => {
         const query = `
             SELECT ID, LGAName as name
             FROM [SmartBoxData].[LASIMRA_LocalGovernment_SMO]
+            WHERE LGAName NOT IN ('Institution', 'Mobile')
             ORDER BY LGAName
         `;
         const lgas = await executeQuery(query);

@@ -538,6 +538,39 @@ input:focus {
     font-size: 0.9rem;
 }
 
+/* Table Tabs */
+.table-tabs {
+    display: inline-flex;
+    background: var(--bg-surface-elevated);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    margin: 1.25rem 1.5rem 1rem 1.5rem;
+}
+
+.table-tab {
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.table-tab:hover {
+    color: var(--text-main);
+}
+
+.table-tab.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
 /* Premium Tables */
 .data-table-container {
     padding: 0;

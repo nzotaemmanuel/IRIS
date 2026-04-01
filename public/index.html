@@ -258,24 +258,78 @@
 
             <!-- Structures View -->
             <div id="structuresView" class="view-section hidden">
-                <div class="view-header-row">
-                    <h2>Infrastructure Assets</h2>
-                    <div class="view-header-actions">
-                        <div class="search-bar">
-                            <i data-lucide="search"></i>
-                            <input type="text" id="structures-search" placeholder="Search structures...">
+                <div class="view-header-row mb-20">
+                    <div class="header-left-group">
+                        <h2 class="section-title">Infrastructure Assets</h2>
+                        <p class="section-subtitle">Manage and monitor RoW and Tower/Mast installations across Lagos State</p>
+                    </div>
+                    <div class="header-stats-row">
+                        <div class="mini-stat-card">
+                            <span class="stat-label">RoW Structures</span>
+                            <span class="stat-value" id="structures-row-count">0</span>
+                        </div>
+                        <div class="mini-stat-card">
+                            <span class="stat-label">Tower/Mast</span>
+                            <span class="stat-value" id="structures-mast-count">0</span>
                         </div>
                     </div>
                 </div>
+
+                <div class="analytics-toolbar glass-card mb-20">
+                    <div class="toolbar-search">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="structures-search" placeholder="Search by site ID or LGA...">
+                    </div>
+                    <div class="toolbar-filters">
+                        <div class="filter-item">
+                            <label><i data-lucide="map-pin"></i> LGA</label>
+                            <select id="structures-lga-filter" class="premium-select-alt">
+                                <option value="">All LGAs</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-item">
+                            <label><i data-lucide="clock"></i> Period</label>
+                            <div class="period-selector-wrapper">
+                                <select id="structures-period-filter" class="premium-select-alt">
+                                    <option value="all">All Time</option>
+                                    <option value="year">Current Year</option>
+                                    <option value="30d">Last 30 Days</option>
+                                    <option value="7d">Last 7 Days</option>
+                                    <option value="24h">Last 24 Hours</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trend Chart Section -->
+                <div class="analytics-bento-grid mb-20">
+                    <div class="card chart-card bento-main">
+                        <div class="card-header">
+                            <h3><i data-lucide="trending-up" class="text-primary"></i> Infrastructure Growth</h3>
+                        </div>
+                        <div class="card-body" style="height: 350px;">
+                            <div class="chart-container-wrapper" id="structure-trend-container">
+                                <canvas id="structureTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="data-table-container glass-card">
+                    <div class="table-tabs mb-15">
+                        <button class="table-tab active" data-type="mast">Tower/Mast Structures</button>
+                        <button class="table-tab" data-type="row">RoW Structures</button>
+                    </div>
                     <table class="premium-table">
                         <thead>
-                            <tr>
+                            <tr id="structures-table-header">
+                                <!-- Dynamic headers based on tab -->
                                 <th>Site ID</th>
-                                <th>Address</th>
                                 <th>LGA</th>
-                                <th>Category</th>
-                                <th>Type</th>
+                                <th>Type/Category</th>
+                                <th>Reg. Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -323,6 +377,7 @@
                             <div class="period-selector-wrapper">
                                 <select id="payments-period-filter" class="premium-select-alt">
                                     <option value="all">All Time</option>
+                                    <option value="year">Current Year</option>
                                     <option value="24h">Last 24 Hours</option>
                                     <option value="7d">Last 7 Days</option>
                                     <option value="30d">Last 30 Days</option>

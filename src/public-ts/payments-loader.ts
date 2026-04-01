@@ -29,6 +29,15 @@ export const initializePaymentsLoader = async () => {
         ]);
         
         setupEventListeners();
+        // Defensive re-load: ensure initial 'All Time' view uses monthly granularity
+        // Some SPA timing can cause the initial render to use daily labels; re-request
+        // the trend explicitly after a short delay to stabilize the default view.
+        setTimeout(() => {
+            const period = periodFilter ? periodFilter.value : 'all';
+            const trend = period === 'all' ? 'month' : 'day';
+            loadPaymentTrend({ period, trendPeriod: trend, lgaId: lgaFilter ? lgaFilter.value : '' });
+        }, 350);
+
         isInitialized = true;
         console.log('💰 Payments Analytics initialized successfully');
     } catch (err) {
@@ -46,8 +55,11 @@ const setupEventListeners = () => {
 
     const handleChange = () => {
         const period = periodFilter.value;
-        // Automate trend granularity: All Time -> Monthly, others -> Daily
-        const trendPeriod = period === 'all' ? 'month' : 'day';
+        // Automate trend granularity: 
+        // - All Time -> Monthly (initially, may flip to yearly)
+        // - Current Year -> Monthly
+        // - others -> Daily
+        const trendPeriod = (period === 'all' || period === 'year') ? 'month' : 'day';
 
         const filters = {
             lgaId: lgaFilter.value,
@@ -154,8 +166,13 @@ const loadPaymentTrend = async (filters: any = {}) => {
         trendPeriod = period === 'all' ? 'month' : 'day';
     }
 
-    // Force all-time to month (defensive guard for external overrides)
-    if (period === 'all') {
+    // Force all-time to month initially (may switch to year below)
+    if (period === 'all' && !trendPeriod) {
+        trendPeriod = 'month';
+    }
+
+    // Force 'year' filter to monthly granularity
+    if (period === 'year') {
         trendPeriod = 'month';
     }
 
@@ -171,10 +188,23 @@ const loadPaymentTrend = async (filters: any = {}) => {
         trendPeriod: trendPeriod
     });
 
+    console.log(`loadPaymentTrend: period=${period}, trendPeriod=${trendPeriod}`);
+
     try {
         const response = await customFetch(`/api/payments/trend?${queryParams.toString()}`);
         const apiData = await response.json();
         
+        // DYNAMIC GRANULARITY for "All Time":
+        // If All Time is selected with Monthly granularity, but spans multiple years, 
+        // toggle to Yearly granularity for a cleaner view.
+        if (period === 'all' && trendPeriod === 'month' && apiData.length > 0) {
+            const years = new Set(apiData.map((d: any) => String(d.label).substring(0, 4)));
+            if (years.size > 1) {
+                console.log('All Time data spans multiple years. Switching to Yearly granularity.');
+                return loadPaymentTrend({ ...filters, trendPeriod: 'year' });
+            }
+        }
+
         // Always ensure a complete timeframe (fill gaps in the series)
         const filledData = fillDataGaps(apiData, period, trendPeriod);
 
@@ -223,11 +253,17 @@ const fillDataGaps = (apiData: any[], period: string, trendPeriod: string): any[
             return filled;
         }
 
-        // Build a continuous month skeleton spanning from the earliest data month
-        // to the current month so data from any past year is displayed correctly.
+        // Build a continuous month skeleton
         const sortedKeys = [...dataMap.keys()].sort();
-        const firstLabel = sortedKeys[0]; // "yyyy-MM"
-        const currentLabel = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentYear = now.getFullYear();
+        let firstLabel = sortedKeys[0] || `${currentYear}-01`; 
+        
+        // If "Current Year" filter is selected, always start from January of this year
+        if (period === 'year') {
+            firstLabel = `${currentYear}-01`;
+        }
+
+        const currentLabel = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         const endLabel = currentLabel > sortedKeys[sortedKeys.length - 1] ? currentLabel : sortedKeys[sortedKeys.length - 1];
 
         let [year, month] = firstLabel.split('-').map(Number);
@@ -247,6 +283,28 @@ const fillDataGaps = (apiData: any[], period: string, trendPeriod: string): any[
         return filled;
     }
 
+    if (trendPeriod === 'year') {
+        if (apiData.length === 0) {
+            filled.push({ label: String(now.getFullYear()), displayLabel: String(now.getFullYear()), value: 0 });
+            return filled;
+        }
+
+        const sortedYears = [...dataMap.keys()].sort();
+        const firstYear = parseInt(sortedYears[0]);
+        const currentYear = now.getFullYear();
+
+        // Generate full sequence from first year to current year (No Gaps)
+        for (let y = firstYear; y <= currentYear; y++) {
+            const label = String(y);
+            filled.push({ 
+                label: label, 
+                displayLabel: label, 
+                value: dataMap.get(label) || 0 
+            });
+        }
+        return filled;
+    }
+
     if (period === '24h') {
         for (let i = 23; i >= 0; i--) {
             const d = new Date(now.getTime() - i * 60 * 60 * 1000);
@@ -262,21 +320,20 @@ const fillDataGaps = (apiData: any[], period: string, trendPeriod: string): any[
         for (let i = 6; i >= 0; i--) {
             const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
             const dateStr = d.toISOString().split('T')[0]; // "yyyy-MM-dd"
-            const displayDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            // Use 'short' weekday labels (e.g., "Wed") as visible in the user's screenshot
+            const displayLabel = d.toLocaleDateString('en-GB', { weekday: 'short' });
             filled.push({ 
                 label: dateStr, 
-                displayLabel: displayDate,
+                displayLabel: displayLabel,
                 value: dataMap.get(dateStr) || 0 
             });
         }
     } else if (period === '30d') {
+        const referenceDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         for (let i = 29; i >= 0; i--) {
-            const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+            const d = new Date(referenceDate.getTime() - i * 24 * 60 * 60 * 1000);
             const dateStr = d.toISOString().split('T')[0]; // "yyyy-MM-dd"
-            const label = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-            // Reformat "24 Feb" to "Feb 24"
-            const parts = label.split(' '); // [24, Feb]
-            const displayLabel = `${parts[1]} ${parts[0]}`;
+            const displayLabel = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             
             filled.push({ 
                 label: dateStr, 
@@ -386,9 +443,9 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
                 borderColor: 'rgba(99, 102, 241, 1)',
                 borderWidth: 1,
                 borderRadius: 5,
-                barPercentage: 0.75,
-                categoryPercentage: 0.85,
-                maxBarThickness: 40
+                barPercentage: 0.85,  // Increased to fit 30 bars better
+                categoryPercentage: 0.9,
+                maxBarThickness: 30   // Slightly thinner to fit 30 points
             }]
         },
         options: {
@@ -438,11 +495,11 @@ const renderTrendChart = (canvas: HTMLCanvasElement, data: any[], isEmpty: boole
                     grid: { display: false },
                     ticks: { 
                         color: isDark ? '#94a3b8' : '#475569',
-                        font: { family: 'Inter', size: 11 },
-                        maxRotation: 0,
+                        font: { family: 'Inter', size: 10 }, // Smaller font for dense labels
+                        maxRotation: 45,
                         minRotation: 0,
-                        autoSkip: true,
-                        autoSkipPadding: 8,
+                        autoSkip: false, // Ensure NO gaps in labels as requested
+                        autoSkipPadding: 2,
                         callback: (value: any) => {
                             if (typeof value === 'string') return value;
                             return labels[value as number];
