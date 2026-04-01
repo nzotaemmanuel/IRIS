@@ -1,0 +1,36 @@
+{
+  "hasChart": true,
+  "hasGetChart": true,
+  "canvasChecks": [
+    {
+      "idx": 0,
+      "id": "chart-structures",
+      "hasInstance": true,
+      "labels": "[\"Aesthetic\",\"Guyed Tower\",\"Latrice Tower\",\"Monopole\",\"Access\",\"Fiber Optic Cable\",\"Gas Pipe\",\"Kerbs\",\"Power Cable\",\"Water Pipe\",\"Mast\",\"Tower\",\"RoW\",\"Small Cell\"]"
+    },
+    {
+      "idx": 1,
+      "id": "chart-payments",
+      "hasInstance": true,
+      "labels": "[\"Manual\",\"Pay4it\",\"WebPay\",\"Direct\",\"POS\"]"
+    },
+    {
+      "idx": 2,
+      "id": "chart-requests",
+      "hasInstance": true,
+      "labels": "[\"Approved\",\"Bill Generation\",\"Draft\",\"Installation Submission\",\"Pending on Commerial Team Review\",\"Pending on consultant report uploading\",\"Pending on GM Approval\",\"Pending on Permit Upload by GM\",\"Pending On Technical Operation Assign Consultant\",\"Pending on Technical Operations Assessment Report\",\"Processing Fee Verification\",\"Technical Operations Review and Set Visit Date\"]"
+    },
+    {
+      "idx": 3,
+      "id": "chart-violations",
+      "hasInstance": true,
+      "labels": "[]"
+    },
+    {
+      "idx": 4,
+      "id": "paymentTrendChart",
+      "hasInstance": false,
+      "labels": ""
+    }
+  ]
+}
