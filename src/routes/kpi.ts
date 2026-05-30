@@ -41,7 +41,9 @@ router.get('/structures', async (req: any, res: any) => {
       INNER JOIN (
         SELECT RequestID FROM [SmartBoxData].[LASIMRA_RowRequest_SMO]
         UNION ALL
-        SELECT RequestID FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO]
+        SELECT tm.RequestID 
+        FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO] tm
+        INNER JOIN [SmartBoxData].[LASIMRA_TowerMast_Request_SMO] tm2 ON tm.RequestID = tm2.RequestID
       ) as combined ON r.RequestID = combined.RequestID
       ${getPeriodFilter(period, 'r.ApplicationDate') ? 'WHERE 1=1 ' + getPeriodFilter(period, 'r.ApplicationDate') : ''}
     `);
@@ -62,6 +64,7 @@ router.get('/structures', async (req: any, res: any) => {
         
         SELECT tm.RequestID, ts.StructureTypeName as InfraCategory, 'mast' as Type 
         FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO] tm
+        INNER JOIN [SmartBoxData].[LASIMRA_TowerMast_Request_SMO] tm2 ON tm.RequestID = tm2.RequestID
         LEFT JOIN [SmartBoxData].[LASIMRA_StructureType_SMO] ts ON tm.TypeOfStructure = ts.StructureTypeID
       ) as st ON r.RequestID = st.RequestID
       ${getPeriodFilter(period, 'r.ApplicationDate') ? 'WHERE 1=1 ' + getPeriodFilter(period, 'r.ApplicationDate') : ''}
@@ -69,9 +72,16 @@ router.get('/structures', async (req: any, res: any) => {
     `);
 
     const trend = await executeQuery(`
-      SELECT FORMAT(r.ApplicationDate, 'yyyy-MM') as month, COUNT(*) as value
+      SELECT FORMAT(r.ApplicationDate, 'yyyy-MM') as month, COUNT(r.RequestID) as value
       FROM [SmartBoxData].[LASIMRA_Request_SMO] r
-      WHERE r.ProcessType IN (1, 2)
+      INNER JOIN (
+        SELECT RequestID FROM [SmartBoxData].[LASIMRA_RowRequest_SMO]
+        UNION ALL
+        SELECT tm.RequestID 
+        FROM [SmartBoxData].[LASIMRA_TowerMast_Reqeust_SMO] tm
+        INNER JOIN [SmartBoxData].[LASIMRA_TowerMast_Request_SMO] tm2 ON tm.RequestID = tm2.RequestID
+      ) as combined ON r.RequestID = combined.RequestID
+      WHERE 1=1 
       ${getPeriodFilter(period, 'r.ApplicationDate')}
       GROUP BY FORMAT(r.ApplicationDate, 'yyyy-MM')
       ORDER BY month ASC
